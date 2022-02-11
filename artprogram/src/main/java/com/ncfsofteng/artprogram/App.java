@@ -7,19 +7,38 @@ import processing.core.PApplet;
  */
 public class App extends PApplet
 {
+    @Override
+    public void setup()
+    {
+        frameRate(1000);
+        background(255);
+    }
+
+    @Override
     public void settings()
     {
         size(500, 500);
     }
 
+    @Override
     public void draw()
     {
-        ellipse(mouseX, mouseY, 20, 20);
+        // background(255);
+        // ellipse(mouseX, mouseY, 20, 20);
     }
 
+    @Override
     public void mousePressed()
     {
-        background(64);
+    }
+
+    @Override
+    public void mouseDragged()
+    {
+        // point(mouseX, mouseY);
+        fill(0);
+        stroke(0);
+        point(mouseX, mouseY);
     }
 
     public static void main( String[] args )
