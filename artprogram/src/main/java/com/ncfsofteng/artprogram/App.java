@@ -1,35 +1,25 @@
-package com.ncfsofteng.artprogram;
-
-import processing.core.PApplet;
-
 /**
  * App.java
  * @author Devon Gardner
  *
  * A simple paint app. 
  */
+
+package com.ncfsofteng.artprogram;
+
+import processing.core.PApplet;
+
 public class App extends PApplet
 {
     // Canvas settings PIXELS
     private int width = 0;
     private int height = 0;
 
-    // Colors RGB
-    public final int red = color(255, 0, 0);
-    public final int green = color(0, 255, 0);
-    public final int blue = color(0, 0, 255);
-    public final int white = color(255, 255, 255);
-    public final int grey = color(128, 128, 128);
-    public final int black = color(0, 0, 0);
-    public final int yellow = color(255, 255, 0);
-    public final int cyan = color(0, 255, 255);
-    public final int magenta = color(255, 0, 255);
-    public final int orange = color(255, 165, 0);
-    public final int brown = color(165, 42, 42);
-
     // Brush settings
-    private int brush_size = 5;
-    private int brush_color = blue;
+    public int brush_size = 5; // Size in pixels
+    public int brush_color = 0; // 0-10: RED/GREEN/BLUE/WHITE/GREY/BLACK/YELLOW/CYAN/MAGENTA/ORANGE/BROWN
+    public int brush_style = 0; // 0-2: PIXEL/ELLIPSE/RECTANGLE
+    public int brush_mode = 0; // 0/1: DRAW/SHAPE
 
     public App(int width, int height)
     {
@@ -40,22 +30,28 @@ public class App extends PApplet
     @Override
     public void setup()
     {
-        // High framerate for smooth drawing
         frameRate(1000);
         background(128);
+        ellipseMode(CENTER);
+        rectMode(CORNER);
+        textAlign(LEFT, TOP);
     }
 
     @Override
     public void settings()
     {
-        // Use constructor width and height values to create canvas
         size(width, height);
     }
 
     @Override
     public void draw()
     {
-    
+        // TODO: Draw info as text (mouse coords, current brush size, etc) 
+        noStroke();
+        fill(color(128, 128, 128));
+        rect(10, 10, 160, 15);
+        fill(color(0, 0, 0));
+        text("Mouse Position: (" + mouseX + ", " + mouseY + ")", 10, 10);
     }
 
     @Override
@@ -63,46 +59,72 @@ public class App extends PApplet
     {
         if (key == 'c')
         {
-            background(grey);
+            background(color(128, 128, 128));
+        }
+    }
+
+    @Override
+    public void mouseClicked()
+    {
+        if (brush_mode == 1)
+        {
+            setColor();
+            square(mouseX, mouseY, 15);
         }
     }
 
     @Override
     public void mouseDragged()
     {
-        drawCircle(mouseX, mouseY, brush_size, brush_color);
-        // drawPixel(mouseX, mouseY, orange);
+        if (brush_mode == 0)
+        {
+            setColor();
+            circle(mouseX, mouseY, brush_size);
+        }
     }
 
-    /**
-     * Draws a pixel onto the canvas.
-     * 
-     * @param x     x coordinate of the target pixel
-     * @param y     y coodinate of the target pixel
-     * @param color color to set the target pixel to
-     */
-    public void drawPixel(int x, int y, int color)
+    private void setColor()
     {
-        // Set pixel color to color and draw at x, y
-        stroke(color);
-        point(x, y);
-    }
-
-    /**
-     * Draws a circle onto the canvas
-     * 
-     * @param x     center x coordinate
-     * @param y     center y coordinate
-     * @param r     circle radius
-     * @param color circle color
-     */
-    public void drawCircle(int x, int y, int r, int color)
-    {
-        // noStroke results in the shape having no border
-        noStroke();
-        // fill sets the body color of a shape
-        fill(color);
-        circle(x, y, r);
+        switch (brush_color) {
+            case 0: // RED
+                fill(color(255, 0, 0));
+                stroke(color(255, 0, 0));
+                break;
+            case 1: // GREEN
+                fill(color(0, 255, 0));
+                stroke(color(0, 255, 0));
+                break;
+            case 2: // BLUE
+                fill(color(0, 0, 255));
+                stroke(color(0, 0, 255));
+                break;
+            case 3: // WHITE
+                fill(color(255, 255, 255));
+                stroke(color(255, 255, 255));
+            case 4: // GREY
+                fill(color(128, 128, 128));
+                stroke(color(128, 128, 128));
+            case 5: // BLACK
+                fill(color(0, 0, 0));
+                stroke(color(0, 0, 0));
+            case 6: // YELLOW
+                fill(color(255, 255, 0));
+                stroke(color(255, 255, 0));
+            case 7: // CYAN
+                fill(color(0, 255, 255));
+                stroke(color(0, 255, 255));
+            case 8: // MAGENTA
+                fill(color(255, 0, 255));
+                stroke(color(255, 0, 255));
+            case 9: // ORANGE
+                fill(color(255, 165, 0));
+                stroke(color(255, 165, 0));
+            case 10: // BROWN
+                fill(color(165, 42, 42));
+                stroke(color(165, 42, 42));
+            default:
+                break;
+        }
     }
 
     public static void main( String[] args )
