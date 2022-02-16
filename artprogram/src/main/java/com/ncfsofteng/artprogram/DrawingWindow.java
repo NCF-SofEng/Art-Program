@@ -104,12 +104,8 @@ public class DrawingWindow extends ProcessingWindow {
         float red = parameters.get("Red").floatValue();
         float green = parameters.get("Green").floatValue();
         float blue = parameters.get("Blue").floatValue();
-        float brown = parameters.get("Brown").floatValue();
         background(255);
         ellipse(250, 250, 100*2, 100*2);
-        if(brown == 1.0){
-            fill(165,42,42);
-        }
         if(red == 1.0){
             fill(255, 0, 0);
             parameters.put("Green",  0.0);

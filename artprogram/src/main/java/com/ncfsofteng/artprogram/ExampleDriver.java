@@ -24,8 +24,6 @@ public class ExampleDriver {
         parameters.put("Red", 0.0);
         parameters.put("Green", 0.0);
         parameters.put("Blue", 0.0);
-        parameters.put("Brown", 0.0);
-        parameters.put("Purple", 0.0);
         DrawingWindow window = new DrawingWindow(500, 500, parameters, 500, 500);
         window.createWindow();
 
