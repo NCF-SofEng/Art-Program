@@ -35,7 +35,7 @@ public class MenuWindow extends ProcessingWindow {
 
         this.parameters = parameters;
         updateButtons = new LinkedHashMap<String, Button>();
-        buttonHeight = (float) ((height / (parameters.keySet().size() * 2)) - (height / 8));
+        buttonHeight = (float) ((height / (parameters.keySet().size())) - (height / 8));
     }
 
     /**
@@ -60,7 +60,7 @@ public class MenuWindow extends ProcessingWindow {
     public void draw() {
         Set<String> parameterNames = parameters.keySet();
         int numParameters = parameterNames.size();
-        float verticalSpacing = ((float) height / (float) (numParameters * 2));
+        float verticalSpacing = ((float) height / (float) (numParameters));
         float buttonX = (float) (width / 2.0);
         float centerY;
         int parameterNumber = 1;
@@ -95,6 +95,7 @@ public class MenuWindow extends ProcessingWindow {
             this.bWidth = buttonHeight*5;
             this.bHeight = buttonHeight*3;
         }
+
         /*
          * Draws the button to the output window
          */
@@ -102,6 +103,7 @@ public class MenuWindow extends ProcessingWindow {
             rectMode(CENTER);
             fill(50);
             rect(centerX, centerY, bWidth, bHeight);
+            System.out.println(centerX + " " + centerY + " " + bWidth + " " + bHeight);
             fill(255);
             textAlign(CENTER);
             text(parameter, centerX, centerY - (bHeight / 20));
