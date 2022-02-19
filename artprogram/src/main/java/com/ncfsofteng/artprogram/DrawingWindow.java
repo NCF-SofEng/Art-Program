@@ -124,6 +124,7 @@ public class DrawingWindow extends ProcessingWindow {
         float save = parameters.get("Save").floatValue();
         background(255);
         ellipse(250, 250, 100*2, 100*2);
+//<<<<<<< HEAD
         if(red == 1.0)
         {
             fill(255, 0, 0);
@@ -145,6 +146,7 @@ public class DrawingWindow extends ProcessingWindow {
             parameters.put("Red",  0.0);
             parameters.put("Brown", 0.0);
         }
+//=======
         if(canvasResize == 1.0){
             canvasResize = (float) 0.0;
             int canvasWidth;
@@ -307,5 +309,9 @@ public class DrawingWindow extends ProcessingWindow {
             parameters.put("Orange", 0.0);
             parameters.put("Magenta", 0.0);
         }
+
+
+
+//>>>>>>> 153e617b9ebd6e9c31b49daae3ae7f145fda60a9
     }
 }
