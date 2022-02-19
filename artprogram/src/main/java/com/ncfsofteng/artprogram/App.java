@@ -7,12 +7,16 @@
 
 package com.ncfsofteng.artprogram;
 
-import processing.core.PApplet;
+import processing.core.*;
+import processing.pdf.*;
 
 import java.util.ArrayList;
 
 public class App extends PApplet
 {
+    //
+    private String save_file = "out";
+
     // Canvas settings
     private int width = 0;
     private int height = 0;
@@ -20,7 +24,6 @@ public class App extends PApplet
 
     // Objects on canvas
     private ArrayList<Shape> shapes = new ArrayList<>();
-    private ArrayList<ArrayList<Shape>> lines = new ArrayList<>();
 
     // Brush settings
     private int brush_size = 5; // Size in pixels
@@ -28,6 +31,7 @@ public class App extends PApplet
     private int brush_shape = 0; // 0-2: PIXEL/ELLIPSE/RECTANGLE
     private int brush_type = 0; // 0-2: SprayPaint/Thin/Thick
     private int mode = 2; // 0/1/2: BRUSH/SHAPE/MANIPULATE
+    private boolean save = false;
 
     public App(int width, int height)
     {
@@ -47,6 +51,7 @@ public class App extends PApplet
         // Demo shapes
         shapes.add(new Ellipse(width / 2 + 75, height / 2, 50, 30, -45.0f, setColor(color)));
         shapes.add(new Rectangle(width / 2 - 75, height / 2, 50, 30, 15.0f, setColor(color)));
+        
     }
 
     @Override
@@ -58,10 +63,14 @@ public class App extends PApplet
     @Override
     public void draw()
     {
+        // Begin recording if save flag triggered
+        if (save)
+        {
+            beginRecord(PDF, save_file + ".pdf");
+        }
+
         // Draw some info
         noStroke();
-        //fill(BG_COLOR);
-        //rect(10, 10, 160, 15);
         background(BG_COLOR);
         fill(color(0, 0, 0));
         text("Mouse Position: (" + mouseX + ", " + mouseY + ")", 10, 10);
@@ -71,16 +80,26 @@ public class App extends PApplet
         {
             shape.draw();
         }
+
+        if (save)
+        {
+            endRecord();
+            save(save_file + ".png");
+            save(save_file + ".jpg");
+            save = false;
+        }
     }
 
     @Override
     public void keyPressed() {
         if (key == '0')
             mode = 0;
-        else if (key == '1')
+        if (key == '1')
             mode = 1;
-        else if (key == '2')
+        if (key == '2')
             mode = 2;
+        if (key == 's')
+            save = true;
         System.out.println(mode);
     }
 

@@ -27,18 +27,25 @@
     </dependency>
 
 
-    <!-- Download latest version (3.5.4) from Processing website -->
-    <!--
-    mvn install:install-file \
-        -Dfile=/path/to/core-3.5.4.jar \
-        -DgroupId=org.processing \
-        -DartifactId=core \
-        -Dversion=3.5.4 \
-        -Dpackaging=jar
-    -->
+    <!-- mvn install:install-file -Dfile=resources/core-3.5.4.jar -DgroupId=org.processing -DartifactId=core -Dversion=3.5.4 -Dpackaging=jar -->
+    <!-- mvn install:install-file -Dfile=resources/pdf-3.5.4.jar -DgroupId=org.processing -DartifactId=pdf -Dversion=3.5.4 -Dpackaging=jar -->
+    <!-- mvn install:install-file -Dfile=resources/itext-3.5.4.jar -DgroupId=org.processing -DartifactId=itext -Dversion=3.5.4 -Dpackaging=jar -->
+
     <dependency>
         <groupId>org.processing</groupId>
         <artifactId>core</artifactId>
+        <version>3.5.4</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.processing</groupId>
+        <artifactId>pdf</artifactId>
+        <version>3.5.4</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.processing</groupId>
+        <artifactId>itext</artifactId>
         <version>3.5.4</version>
     </dependency>
   </dependencies>
