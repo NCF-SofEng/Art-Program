@@ -51,13 +51,11 @@ public class ExampleDriver {
         parameters.put("Circle", 0.0);
         parameters.put("Square", 0.0);
         parameters.put("Rectangle", 0.0);
-        parameters.put("Triangle", 0.0);
+        parameters.put("Ellipse", 0.0);
         parameters.put("Brush Size", 0.0);
-        parameters.put("Canvas Size", 0.0);
         parameters.put("Save", 0.0);
         DrawingWindow window = new DrawingWindow(canvasWidth, canvasLength, parameters, 500, 700);
         window.createWindow();
-
     }
 
 }

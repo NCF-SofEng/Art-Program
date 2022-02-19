@@ -25,7 +25,8 @@ public class App extends PApplet
     // Brush settings
     private int brush_size = 5; // Size in pixels
     private int color = 0; // 0-10: RED/GREEN/BLUE/WHITE/GREY/BLACK/YELLOW/CYAN/MAGENTA/ORANGE/BROWN
-    private int brush_style = 0; // 0-2: PIXEL/ELLIPSE/RECTANGLE
+    private int brush_shape = 0; // 0-2: PIXEL/ELLIPSE/RECTANGLE
+    private int brush_type = 0; // 0-2: SprayPaint/Thin/Thick
     private int mode = 2; // 0/1/2: BRUSH/SHAPE/MANIPULATE
 
     public App(int width, int height)
@@ -44,8 +45,8 @@ public class App extends PApplet
         textAlign(LEFT, TOP);
 
         // Demo shapes
-        shapes.add(new Ellipse(width / 2 + 75, height / 2, 50, 30, -45.0f, setColor()));
-        shapes.add(new Rectangle(width / 2 - 75, height / 2, 50, 30, 15.0f, setColor()));
+        shapes.add(new Ellipse(width / 2 + 75, height / 2, 50, 30, -45.0f, setColor(color)));
+        shapes.add(new Rectangle(width / 2 - 75, height / 2, 50, 30, 15.0f, setColor(color)));
     }
 
     @Override
@@ -88,7 +89,7 @@ public class App extends PApplet
     {
         if (mode == 1)
         {
-            shapes.add(new Ellipse(mouseX, mouseY, 30, 50, 0.0f, setColor()));
+            shapes.add(new Ellipse(mouseX, mouseY, 30, 50, 0.0f, setColor(color)));
         }
         else if (mode == 2)
         {
@@ -105,8 +106,9 @@ public class App extends PApplet
     {
         if (mode == 0)
         {
-            setColor();
-            circle(mouseX, mouseY, brush_size);
+            //setColor(2);
+            //circle(mouseX, mouseY, brush_size);
+            shapes.add(new Ellipse(mouseX, mouseY, brush_size, brush_size, 0f, setColor(color)));
         }
         else if (mode == 2)
         {
@@ -121,7 +123,7 @@ public class App extends PApplet
         }
     }
 
-    private int setColor()
+    private int setColor(int color)
     {
         int c;
 

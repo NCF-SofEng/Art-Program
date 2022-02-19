@@ -92,6 +92,7 @@ public class DrawingWindow extends ProcessingWindow {
      */
     public void setup() {
         background(255);
+        surface.setResizable(true);
         fill(0);
         noStroke();
         rectMode(CENTER);
@@ -117,10 +118,9 @@ public class DrawingWindow extends ProcessingWindow {
         float brown = parameters.get("Brown").floatValue();
         float circle = parameters.get("Circle").floatValue();
         float square = parameters.get("Square").floatValue();
-        float Rectangle = parameters.get("Rectangle").floatValue();
-        float triangle = parameters.get("Triangle").floatValue();
+        float rectangle = parameters.get("Rectangle").floatValue();
+        float ellipse = parameters.get("Ellipse").floatValue();
         float brushResize = parameters.get("Brush Size").floatValue();
-        float canvasResize = parameters.get("Canvas Size").floatValue();
         float save = parameters.get("Save").floatValue();
         background(255);
         ellipse(250, 250, 100*2, 100*2);
@@ -147,21 +147,17 @@ public class DrawingWindow extends ProcessingWindow {
             parameters.put("Brown", 0.0);
         }
 //=======
-        if(canvasResize == 1.0){
-            canvasResize = (float) 0.0;
-            int canvasWidth;
-            int canvasLength;
-            String input = JOptionPane.showInputDialog("Please enter the pixel width you'd like your canvas to be!");
-            String input2 = JOptionPane.showInputDialog("Please enter the pixel height you'd like your canvas to be!");
-            // Try to set the newValue to the user's input
+        if(brushResize == 1.0){
+            brushResize = (float) 0.0;
+            int brushSize;
+            String input = JOptionPane.showInputDialog("Please enter the amount of pixels you want your brush size to be!");
             try {
-                canvasWidth = Integer.parseInt(input);
-                canvasLength = Integer.parseInt(input2);
+                brushSize = Integer.parseInt(input);
             }
             catch (NumberFormatException e) {
                 // Canvas launches with default sizes if given bad input
-                canvasWidth = 500;
-                canvasLength = 500;
+                brushSize = 5;
+
             }
 
         }
@@ -192,7 +188,7 @@ public class DrawingWindow extends ProcessingWindow {
             parameters.put("Brown", 0.0);
         }
         if(blue == 1.0){
-            //setColor(2);
+            //fill(setColor(2));
             parameters.put("Red", 0.0);
             parameters.put("Green", 0.0);
             parameters.put("White", 0.0);
