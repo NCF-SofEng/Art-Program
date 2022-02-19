@@ -17,6 +17,9 @@ package com.ncfsofteng.artprogram;
  * to make your own Processing sketches with menus!
  */
 
+import jdk.internal.net.http.frame.SettingsFrame;
+
+import javax.swing.*;
 import java.util.Map;
 
 public class DrawingWindow extends ProcessingWindow {
@@ -104,27 +107,187 @@ public class DrawingWindow extends ProcessingWindow {
         float red = parameters.get("Red").floatValue();
         float green = parameters.get("Green").floatValue();
         float blue = parameters.get("Blue").floatValue();
-        float brown = parameters.get("Purple").floatValue();
-        float purple = parameters.get("Brown").floatValue();
+        float white = parameters.get("White").floatValue();
+        float grey = parameters.get("Grey").floatValue();
+        float black = parameters.get("Black").floatValue();
+        float yellow = parameters.get("Yellow").floatValue();
+        float cyan = parameters.get("Cyan").floatValue();
+        float orange = parameters.get("Orange").floatValue();
+        float magenta = parameters.get("Magenta").floatValue();
+        float brown = parameters.get("Brown").floatValue();
+        float circle = parameters.get("Circle").floatValue();
+        float square = parameters.get("Square").floatValue();
+        float Rectangle = parameters.get("Rectangle").floatValue();
+        float triangle = parameters.get("Triangle").floatValue();
+        float brushResize = parameters.get("Brush Size").floatValue();
+        float canvasResize = parameters.get("Canvas Size").floatValue();
+        float save = parameters.get("Save").floatValue();
         background(255);
         ellipse(250, 250, 100*2, 100*2);
+        if(canvasResize == 1.0){
+            canvasResize = (float) 0.0;
+            int canvasWidth;
+            int canvasLength;
+            String input = JOptionPane.showInputDialog("Please enter the pixel width you'd like your canvas to be!");
+            String input2 = JOptionPane.showInputDialog("Please enter the pixel height you'd like your canvas to be!");
+            // Try to set the newValue to the user's input
+            try {
+                canvasWidth = Integer.parseInt(input);
+                canvasLength = Integer.parseInt(input2);
+            }
+            catch (NumberFormatException e) {
+                // Canvas launches with default sizes if given bad input
+                canvasWidth = 500;
+                canvasLength = 500;
+            }
+
+        }
         if(red == 1.0){
-            fill(255, 0, 0);
-            parameters.put("Green",  0.0);
-            parameters.put("Blue",  0.0);
+            //setColor(0);
+            parameters.put("Green", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Magenta", 0.0);
             parameters.put("Brown", 0.0);
         }
-        if(green == 1.0){fill(0, 255, 0);
-            parameters.put("Blue",  0.0);
-            parameters.put("Red",  0.0);
+        if(green == 1.0){
+            //setColor(1);
+            parameters.put("Red", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Magenta", 0.0);
             parameters.put("Brown", 0.0);
         }
-        if(blue == 1.0){fill(0, 0, 255);
-            parameters.put("Green",  0.0);
-            parameters.put("Red",  0.0);
+        if(blue == 1.0){
+            //setColor(2);
+            parameters.put("Red", 0.0);
+            parameters.put("Green", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Magenta", 0.0);
             parameters.put("Brown", 0.0);
+        }
+        if(white == 1.0){
+            //setColor(3);
+            parameters.put("Red", 0.0);
+            parameters.put("Green", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Magenta", 0.0);
+            parameters.put("Brown", 0.0);
+        }
+        if(grey == 1.0){
+            //setColor(4);
+            parameters.put("Red", 0.0);
+            parameters.put("Green", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Magenta", 0.0);
+            parameters.put("Brown", 0.0);
+        }
+        if(black == 1.0){
+            //setColor(5);
+            parameters.put("Red", 0.0);
+            parameters.put("Green", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Magenta", 0.0);
+            parameters.put("Brown", 0.0);
+        }
+        if(yellow == 1.0){
+            //setColor(6);
+            parameters.put("Red", 0.0);
+            parameters.put("Green", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Magenta", 0.0);
+            parameters.put("Brown", 0.0);
+        }
+        if(cyan == 1.0){
+            //setColor(7);
+            parameters.put("Red", 0.0);
+            parameters.put("Green", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Magenta", 0.0);
+            parameters.put("Brown", 0.0);
+        }
+        if(orange == 1.0){
+            //setColor(8);
+            parameters.put("Red", 0.0);
+            parameters.put("Green", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Magenta", 0.0);
+            parameters.put("Brown", 0.0);
+        }
+        if(magenta == 1.0){
+            //setColor(9);
+            parameters.put("Red", 0.0);
+            parameters.put("Green", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Brown", 0.0);
+        }
+        if(brown == 1.0){
+            //setColor(10);
+            parameters.put("Red", 0.0);
+            parameters.put("Green", 0.0);
+            parameters.put("Blue", 0.0);
+            parameters.put("White", 0.0);
+            parameters.put("Grey", 0.0);
+            parameters.put("Black", 0.0);
+            parameters.put("Yellow", 0.0);
+            parameters.put("Cyan", 0.0);
+            parameters.put("Orange", 0.0);
+            parameters.put("Magenta", 0.0);
         }
 
 
-}
+
+    }
 }
