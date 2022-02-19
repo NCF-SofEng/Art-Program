@@ -9,17 +9,24 @@ package com.ncfsofteng.artprogram;
 
 import processing.core.PApplet;
 
+import java.util.ArrayList;
+
 public class App extends PApplet
 {
-    // Canvas settings PIXELS
+    // Canvas settings
     private int width = 0;
     private int height = 0;
+    private final int BG_COLOR = color(255, 255, 255);
+
+    // Objects on canvas
+    private ArrayList<Shape> shapes = new ArrayList<>();
+    private ArrayList<ArrayList<Shape>> lines = new ArrayList<>();
 
     // Brush settings
-    public int brush_size = 5; // Size in pixels
-    public int brush_color = 0; // 0-10: RED/GREEN/BLUE/WHITE/GREY/BLACK/YELLOW/CYAN/MAGENTA/ORANGE/BROWN
-    public int brush_style = 0; // 0-2: PIXEL/ELLIPSE/RECTANGLE
-    public int brush_mode = 0; // 0/1: DRAW/SHAPE
+    private int brush_size = 5; // Size in pixels
+    private int color = 0; // 0-10: RED/GREEN/BLUE/WHITE/GREY/BLACK/YELLOW/CYAN/MAGENTA/ORANGE/BROWN
+    private int brush_style = 0; // 0-2: PIXEL/ELLIPSE/RECTANGLE
+    private int mode = 2; // 0/1/2: BRUSH/SHAPE/MANIPULATE
 
     public App(int width, int height)
     {
@@ -31,10 +38,14 @@ public class App extends PApplet
     public void setup()
     {
         frameRate(1000);
-        background(128);
+        background(BG_COLOR);
         ellipseMode(CENTER);
         rectMode(CORNER);
         textAlign(LEFT, TOP);
+
+        // Demo shapes
+        shapes.add(new Ellipse(width / 2 + 75, height / 2, 50, 30, -45.0f, setColor()));
+        shapes.add(new Rectangle(width / 2 - 75, height / 2, 50, 30, 15.0f, setColor()));
     }
 
     @Override
@@ -46,84 +57,223 @@ public class App extends PApplet
     @Override
     public void draw()
     {
-        // TODO: Draw info as text (mouse coords, current brush size, etc) 
+        // Draw some info
         noStroke();
-        fill(color(128, 128, 128));
-        rect(10, 10, 160, 15);
+        //fill(BG_COLOR);
+        //rect(10, 10, 160, 15);
+        background(BG_COLOR);
         fill(color(0, 0, 0));
         text("Mouse Position: (" + mouseX + ", " + mouseY + ")", 10, 10);
+
+        // Draw tracked shapes
+        for (Shape shape : shapes)
+        {
+            shape.draw();
+        }
     }
 
     @Override
-    public void keyPressed()
-    {
-        if (key == 'c')
-        {
-            background(color(128, 128, 128));
-        }
+    public void keyPressed() {
+        if (key == '0')
+            mode = 0;
+        else if (key == '1')
+            mode = 1;
+        else if (key == '2')
+            mode = 2;
+        System.out.println(mode);
     }
 
     @Override
     public void mouseClicked()
     {
-        if (brush_mode == 1)
+        if (mode == 1)
         {
-            setColor();
-            square(mouseX, mouseY, 15);
+            shapes.add(new Ellipse(mouseX, mouseY, 30, 50, 0.0f, setColor()));
+        }
+        else if (mode == 2)
+        {
+            for (Shape shape : shapes)
+            {
+                if (shape.mouseOver())
+                    shape.c = color(0, 0, 0);
+            }
         }
     }
 
     @Override
     public void mouseDragged()
     {
-        if (brush_mode == 0)
+        if (mode == 0)
         {
             setColor();
             circle(mouseX, mouseY, brush_size);
         }
+        else if (mode == 2)
+        {
+            for (Shape shape : shapes)
+            {
+                if (shape.mouseOver())
+                {
+                    shape.x = mouseX;
+                    shape.y = mouseY;
+                }
+            }
+        }
     }
 
-    private void setColor()
+    private int setColor()
     {
-        switch (brush_color) {
+        int c;
+
+        switch (color) {
             case 0: // RED
-                fill(color(255, 0, 0));
-                stroke(color(255, 0, 0));
+                c = color(255, 0, 0);
                 break;
             case 1: // GREEN
-                fill(color(0, 255, 0));
-                stroke(color(0, 255, 0));
+                c = color(0, 255, 0);
                 break;
             case 2: // BLUE
-                fill(color(0, 0, 255));
-                stroke(color(0, 0, 255));
+                c = color(0, 0, 255);
                 break;
             case 3: // WHITE
-                fill(color(255, 255, 255));
-                stroke(color(255, 255, 255));
-            case 4: // GREY
-                fill(color(128, 128, 128));
-                stroke(color(128, 128, 128));
-            case 5: // BLACK
-                fill(color(0, 0, 0));
-                stroke(color(0, 0, 0));
-            case 6: // YELLOW
-                fill(color(255, 255, 0));
-                stroke(color(255, 255, 0));
-            case 7: // CYAN
-                fill(color(0, 255, 255));
-                stroke(color(0, 255, 255));
-            case 8: // MAGENTA
-                fill(color(255, 0, 255));
-                stroke(color(255, 0, 255));
-            case 9: // ORANGE
-                fill(color(255, 165, 0));
-                stroke(color(255, 165, 0));
-            case 10: // BROWN
-                fill(color(165, 42, 42));
-                stroke(color(165, 42, 42));
-            default:
+                c = color(255, 255, 255);
                 break;
+            case 4: // GREY
+                c = color(128, 128, 128);
+                break;
+            case 5: // BLACK
+                c = color(0, 0, 0);
+                break;
+            case 6: // YELLOW
+                c = color(255, 255, 0);
+                break;
+            case 7: // CYAN
+                c = color(0, 255, 255);
+                break;
+            case 8: // MAGENTA
+                c = color(255, 0, 255);
+                break;
+            case 9: // ORANGE
+                c = color(255, 165, 0);
+                break;
+            case 10: // BROWN
+                c = color(165, 42, 42);
+                break;
+            default: // BLACK
+                c = color(0, 0, 0);
+                break;
+        }
+
+        return c;
+    }
+
+    public void setBrushStyle()
+    {
+        // TODO: Spray-Paint (random pixels in circle), Thin Brush, Thick Brush
+    }
+
+    /**
+     * Inner class representing a shape on the canvas
+     */
+    abstract private class Shape
+    {
+        protected int x;
+        protected int y;
+        protected int w;
+        protected int h;
+        protected float a;
+        protected int c;
+
+        /**
+         * Geometric description of the shape.
+         * @param x Center x value
+         * @param y Center y value
+         * @param w Width of shape
+         * @param h Height of shape
+         * @param a Angle of the shape in degrees
+         * @param c Color of the shape
+         */
+        private Shape(int x, int y, int w, int h, float a, int c)
+        {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+            this.a = radians(a);
+            this.c = c;
+        }
+
+        /*
+         * Draws the button to the output window
+         */
+        abstract void draw();
+
+        /*
+         * Returns true if the mouse is over the button on the MenuWindow
+         */
+        abstract boolean mouseOver();
+    }
+
+    /**
+     * Inner class representing an ellipse on the canvas
+     */
+    private class Ellipse extends Shape
+    {
+        Ellipse(int x, int y, int w, int h, float a, int c)
+        {
+            super(x, y, w, h, a, c);
+        }
+
+        @Override
+        void draw()
+        {
+            ellipseMode(CENTER);
+            fill(c);
+            translate(x, y);
+            rotate(a);
+            ellipse(0, 0, this.w, this.h);
+            rotate(-a);
+            translate(-x, -y);
+        }
+
+        @Override
+        boolean mouseOver()
+        {
+            float f = cos(a) * (pmouseX - this.x) + sin(a) * (pmouseY - this.y);
+            float g = sin(a) * (pmouseX - this.x) - cos(a) * (pmouseY - this.y);
+            float rx = (float)w / 2;
+            float ry = (float)h / 2;
+
+            //return pow((float) (pmouseX - this.x) / ((float)this.w / 2), 2) + pow((float) (pmouseY - this.y) / ((float)this.h / 2), 2) <= 1;
+            return pow(f / rx, 2) + pow(g / ry, 2) <= 1.0f;
+        }
+    }
+
+    private class Rectangle extends Shape
+    {
+        Rectangle(int x, int y, int w, int h, float a, int c)
+        {
+            super(x, y, w, h, a, c);
+        }
+
+        @Override
+        void draw()
+        {
+            rectMode(CENTER);
+            fill(c);
+            translate(x, y);
+            rotate(a);
+            rect(0, 0, this.w, this.h);
+            rotate(-a);
+            translate(-x, -y);
+        }
+
+        @Override
+        boolean mouseOver()
+        {
+            float rx = (float)w / 2;
+            float ry = (float)h / 2;
+            return (pmouseX > x - rx) && (pmouseX < x + rx) && (pmouseY > y - ry) && (pmouseY < y + ry);
         }
     }
 
