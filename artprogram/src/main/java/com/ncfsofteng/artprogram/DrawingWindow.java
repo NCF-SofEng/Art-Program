@@ -17,7 +17,7 @@ package com.ncfsofteng.artprogram;
  * to make your own Processing sketches with menus!
  */
 
-import jdk.internal.net.http.frame.SettingsFrame;
+
 
 import javax.swing.*;
 import java.util.Map;

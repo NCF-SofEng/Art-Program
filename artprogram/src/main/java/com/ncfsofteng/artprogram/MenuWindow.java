@@ -114,7 +114,11 @@ public class MenuWindow extends ProcessingWindow {
             fill(50);
             rect(centerX, centerY, bWidth, bHeight);
             System.out.println(centerX + " " + centerY + " " + bWidth + " " + bHeight);
-            fill(255);
+            if (parameter.equals("Red")){
+                fill(255,0,0);
+            }
+            else{
+            fill(255);}
             textAlign(CENTER);
             text(parameter, centerX, centerY - (bHeight / 20));
             fill(0);
