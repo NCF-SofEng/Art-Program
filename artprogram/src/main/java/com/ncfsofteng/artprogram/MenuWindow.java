@@ -35,7 +35,7 @@ public class MenuWindow extends ProcessingWindow {
 
         this.parameters = parameters;
         updateButtons = new LinkedHashMap<String, Button>();
-        buttonHeight = (float) ((height / (parameters.keySet().size())) - (height / 8));
+        buttonHeight = (float) ((height / (parameters.keySet().size())));
     }
 
     /**
@@ -60,17 +60,27 @@ public class MenuWindow extends ProcessingWindow {
     public void draw() {
         Set<String> parameterNames = parameters.keySet();
         int numParameters = parameterNames.size();
-        float verticalSpacing = ((float) height / (float) (numParameters));
-        float buttonX = (float) (width / 2.0);
+        float verticalSpacing = ((float) height / (float) (numParameters/2.5));
+        float buttonX[] = new float[3];
+        buttonX[0] = (float) (width / 5);
+        buttonX[1] = (float) (width / 2);
+        buttonX[2] = (float) (width / 1.3);
         float centerY;
-        int parameterNumber = 1;
+        int Xlevel = 0;
+        int Ylevel = 1;
         // Iterate through each parameter, create an updateButton for the parameter,
         // and draw it to the output window
         for (String parameter : parameterNames) {
-            centerY = (parameterNumber * verticalSpacing);
-            updateButtons.put(parameter,  new Button(parameter, buttonX, centerY, buttonHeight));
+            centerY = (Ylevel * verticalSpacing);
+            updateButtons.put(parameter,  new Button(parameter, buttonX[Xlevel], centerY, buttonHeight));
             updateButtons.get(parameter).draw();
-            centerY += ++parameterNumber * verticalSpacing;
+            if (Xlevel == 2){
+                Xlevel = 0;
+                centerY += ++Ylevel * verticalSpacing;
+            }
+            else{
+                Xlevel++;
+            }
 
         }
         noLoop();
@@ -92,8 +102,8 @@ public class MenuWindow extends ProcessingWindow {
             this.parameter = parameter;
             this.centerX = centerX;
             this.centerY = centerY;
-            this.bWidth = buttonHeight*5;
-            this.bHeight = buttonHeight*3;
+            this.bWidth = buttonHeight*(5/2) + 40;
+            this.bHeight = buttonHeight*2;
         }
 
         /*
