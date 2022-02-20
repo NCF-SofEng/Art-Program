@@ -60,9 +60,9 @@ public class MenuWindow extends ProcessingWindow {
     public void draw() {
         Set<String> parameterNames = parameters.keySet();
         int numParameters = parameterNames.size();
-        float verticalSpacing = ((float) height / (float) (numParameters/2.5));
+        float verticalSpacing = ((float) height / (float) (numParameters/2));
         float buttonX[] = new float[3];
-        buttonX[0] = (float) (width / 5);
+        buttonX[0] = (float) (width / 4.5);
         buttonX[1] = (float) (width / 2);
         buttonX[2] = (float) (width / 1.3);
         float centerY;
@@ -102,8 +102,8 @@ public class MenuWindow extends ProcessingWindow {
             this.parameter = parameter;
             this.centerX = centerX;
             this.centerY = centerY;
-            this.bWidth = buttonHeight*(5/2) + 40;
-            this.bHeight = buttonHeight*2;
+            this.bWidth = buttonHeight * 4f;
+            this.bHeight = buttonHeight * 1.5f;
         }
 
         /*

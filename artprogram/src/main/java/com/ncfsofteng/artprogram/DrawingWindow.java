@@ -102,7 +102,6 @@ public class DrawingWindow extends ProcessingWindow {
      * whatever the user desires.
      */
     public void draw() {
-
         //Below is an example to demo the MenuWindow based on the
         // parameters set in the ExampleDriver.
         float red = parameters.get("Red").floatValue();
@@ -122,33 +121,36 @@ public class DrawingWindow extends ProcessingWindow {
         float ellipse = parameters.get("Ellipse").floatValue();
         float brushResize = parameters.get("Brush Size").floatValue();
         float save = parameters.get("Save").floatValue();
-        background(255);
-        ellipse(250, 250, 100*2, 100*2);
-//<<<<<<< HEAD
-        if(red == 1.0)
-        {
-            fill(255, 0, 0);
-            parameters.put("Green",  0.0);
-            parameters.put("Blue",  0.0);
-            parameters.put("Brown", 0.0);
+        float brushType = parameters.get("Brush Type").floatValue();
+        float load = parameters.get("Load").floatValue();
+        if(circle == 1.0){
+            parameters.put("Square", 0.0);
+            parameters.put("Rectangle", 0.0);
+            parameters.put("Ellipse", 0.0);
         }
-        if(green == 1.0)
-        {
-            fill(0, 255, 0);
-            parameters.put("Blue",  0.0);
-            parameters.put("Red",  0.0);
-            parameters.put("Brown", 0.0);
+        if(square == 1.0){
+            parameters.put("Circle", 0.0);
+            parameters.put("Rectangle", 0.0);
+            parameters.put("Ellipse", 0.0);
         }
-        if(blue == 1.0)
-        {
-            fill(0, 0, 255);
-            parameters.put("Green",  0.0);
-            parameters.put("Red",  0.0);
-            parameters.put("Brown", 0.0);
+        if(rectangle == 1.0){
+            parameters.put("Square", 0.0);
+            parameters.put("Circle", 0.0);
+            parameters.put("Ellipse", 0.0);
         }
-//=======
+        if(ellipse == 1.0){
+            parameters.put("Square", 0.0);
+            parameters.put("Rectangle", 0.0);
+            parameters.put("Circle", 0.0);
+        }
+        if(save == 1.0){
+            parameters.put("Save", 0.0);
+        }
+        if(load == 1.0){
+            parameters.put("Load", 0.0);
+        }
         if(brushResize == 1.0){
-            brushResize = (float) 0.0;
+            parameters.put("Brush Size", 0.0);
             int brushSize;
             String input = JOptionPane.showInputDialog("Please enter the amount of pixels you want your brush size to be!");
             try {
@@ -157,9 +159,21 @@ public class DrawingWindow extends ProcessingWindow {
             catch (NumberFormatException e) {
                 // Canvas launches with default sizes if given bad input
                 brushSize = 5;
-
             }
-
+            //Brush size change function goes here.
+        }
+        if(brushType == 1.0){
+            parameters.put("Brush Type", 0.0);
+            int brushTypeSignifier;
+            String input = JOptionPane.showInputDialog("Please select a brush type by entering the number corresponding to the desired brush type.!\n 0: Spray Paint\n 1: Thin Brush\n 2: Thick Brush\n 3: Custom Brush\n");
+            try {
+                brushTypeSignifier = Integer.parseInt(input);
+            }
+            catch (NumberFormatException e) {
+                // Canvas launches with default sizes if given bad input
+                brushTypeSignifier = 0;
+            }
+            //Brush Type change function goes here.
         }
         if(red == 1.0){
             //setColor(0);
