@@ -9,13 +9,15 @@ package com.ncfsofteng.artprogram;
 
 import processing.core.*;
 import processing.pdf.*;
+import java.io.File;
+import java.util.Random;
 
 import java.util.ArrayList;
 
 public class App extends PApplet
 {
-    //
     private String save_file = "out";
+    private Random random = new Random(0);
 
     // Canvas settings
     private int width = 0;
@@ -24,13 +26,14 @@ public class App extends PApplet
 
     // Objects on canvas
     private ArrayList<Shape> shapes = new ArrayList<>();
+    private ArrayList<Image> images = new ArrayList<>();
 
     // Brush settings
-    private int brush_size = 5; // Size in pixels
+    private int brush_size = 15; // Size in pixels
     private int color = 0; // 0-10: RED/GREEN/BLUE/WHITE/GREY/BLACK/YELLOW/CYAN/MAGENTA/ORANGE/BROWN
-    private int brush_shape = 0; // 0-2: PIXEL/ELLIPSE/RECTANGLE
-    private int brush_type = 0; // 0-2: SprayPaint/Thin/Thick
-    private int mode = 2; // 0/1/2: BRUSH/SHAPE/MANIPULATE
+    private int brush_shape = 0; // 0-4: PIXEL/ELLIPSE/CIRCLE/RECTANGLE/SQUARE
+    private int brush_type = 0; // 0-3: SprayPaint/Thin/Thick/Custom
+    private int mode = 0; // 0-2: BRUSH/SHAPE/MANIPULATE
     private boolean save = false;
 
     public App(int width, int height)
@@ -42,16 +45,17 @@ public class App extends PApplet
     @Override
     public void setup()
     {
-        frameRate(1000);
+        frameRate(300);
         background(BG_COLOR);
         ellipseMode(CENTER);
         rectMode(CORNER);
         textAlign(LEFT, TOP);
+        noStroke();
 
         // Demo shapes
         shapes.add(new Ellipse(width / 2 + 75, height / 2, 50, 30, -45.0f, setColor(color)));
         shapes.add(new Rectangle(width / 2 - 75, height / 2, 50, 30, 15.0f, setColor(color)));
-        
+        images.add(new Image("https://i.imgur.com/CXMDB5o.png", "png", 100, 100));
     }
 
     @Override
@@ -69,11 +73,18 @@ public class App extends PApplet
             beginRecord(PDF, save_file + ".pdf");
         }
 
-        // Draw some info
-        noStroke();
+        // Redraw background so objects can move
         background(BG_COLOR);
+
+        // Draw some info
         fill(color(0, 0, 0));
         text("Mouse Position: (" + mouseX + ", " + mouseY + ")", 10, 10);
+
+        // Draw tracked images
+        for (Image image : images)
+        {
+            image.draw();
+        }
 
         // Draw tracked shapes
         for (Shape shape : shapes)
@@ -81,6 +92,7 @@ public class App extends PApplet
             shape.draw();
         }
 
+        // Save pdf, png, and jpg
         if (save)
         {
             endRecord();
@@ -100,6 +112,8 @@ public class App extends PApplet
             mode = 2;
         if (key == 's')
             save = true;
+        if (key == 'l')
+            selectInput("Select an image:", "localImage");
         System.out.println(mode);
     }
 
@@ -108,14 +122,33 @@ public class App extends PApplet
     {
         if (mode == 1)
         {
-            shapes.add(new Ellipse(mouseX, mouseY, 30, 50, 0.0f, setColor(color)));
+            switch (brush_shape)
+            {
+                case 0:
+                    set(mouseX, mouseY, setColor(color));
+                    break;
+                case 1:
+                    shapes.add(new Ellipse(mouseX, mouseY, 30, 50, 0.0f, setColor(color)));
+                    break;
+                case 2:
+                    shapes.add(new Ellipse(mouseX, mouseY, 30, 30, 0.0f, setColor(color)));
+                    break;
+                case 3:
+                    shapes.add(new Rectangle(mouseX, mouseY, 40, 60, 0.0f, setColor(color)));
+                    break;
+                case 4:
+                    shapes.add(new Rectangle(mouseX, mouseY, 40, 40, 0.0f, setColor(color)));
+                    break;
+                default:
+                    break;
+            }
         }
         else if (mode == 2)
         {
             for (Shape shape : shapes)
             {
                 if (shape.mouseOver())
-                    shape.c = color(0, 0, 0);
+                    shape.c = setColor(color);
             }
         }
     }
@@ -125,12 +158,37 @@ public class App extends PApplet
     {
         if (mode == 0)
         {
-            //setColor(2);
-            //circle(mouseX, mouseY, brush_size);
-            shapes.add(new Ellipse(mouseX, mouseY, brush_size, brush_size, 0f, setColor(color)));
+            switch (brush_type)
+            {
+                case 0: // SPRAYPAINT
+                    // https://mathworld.wolfram.com/DiskPointPicking.html
+                    for (int i = 0; i < sq(brush_size) / 2; i++)
+                    {
+                        float a = random.nextFloat() * PI * 2; 
+                        float r = sqrt(random.nextFloat()) * brush_size;
+                        float x = mouseX + r * cos(a);
+                        float y = mouseY + r * sin(a);
+                        // point((int)x, (int)y);
+                        set((int)x, (int)y, setColor(color));
+                        shapes.add(new Ellipse((int)x, (int)y, 1, 1, 0.0f, setColor(color)));
+                    }
+                    break;
+                case 1: // THICK BRUSH
+                    shapes.add(new Ellipse(mouseX, mouseY, 30, 30, 0f, setColor(color)));
+                    break;
+                case 2: // THIN BRUSH
+                    shapes.add(new Ellipse(mouseX, mouseY, 5, 5, 0f, setColor(color)));
+                    break;
+                case 3: // CUSTOM BRUSH
+                    shapes.add(new Ellipse(mouseX, mouseY, brush_size, brush_size, 0f, setColor(color)));
+                    break;
+                default:
+                    break;
+            }
         }
         else if (mode == 2)
         {
+            // Move shapes if mouse is over them and dragging
             for (Shape shape : shapes)
             {
                 if (shape.mouseOver())
@@ -139,6 +197,24 @@ public class App extends PApplet
                     shape.y = mouseY;
                 }
             }
+
+            // Move images if mouse is over them and dragging
+            for (Image image : images)
+            {
+                if (image.mouseOver())
+                {
+                    image.x = mouseX - image.image.width / 2;
+                    image.y = mouseY - image.image.height / 2;
+                }
+            }
+        }
+    }
+
+    public void localImage(File selection)
+    {
+        if (selection != null)
+        {
+            images.add(new Image(selection.getAbsolutePath(), width / 2, height / 2));
         }
     }
 
@@ -188,11 +264,6 @@ public class App extends PApplet
         return c;
     }
 
-    public void setBrushStyle()
-    {
-        // TODO: Spray-Paint (random pixels in circle), Thin Brush, Thick Brush
-    }
-
     /**
      * Inner class representing a shape on the canvas
      */
@@ -227,12 +298,12 @@ public class App extends PApplet
         /*
          * Draws the button to the output window
          */
-        abstract void draw();
+        abstract public void draw();
 
         /*
          * Returns true if the mouse is over the button on the MenuWindow
          */
-        abstract boolean mouseOver();
+        abstract public boolean mouseOver();
     }
 
     /**
@@ -240,13 +311,13 @@ public class App extends PApplet
      */
     private class Ellipse extends Shape
     {
-        Ellipse(int x, int y, int w, int h, float a, int c)
+        public Ellipse(int x, int y, int w, int h, float a, int c)
         {
             super(x, y, w, h, a, c);
         }
 
         @Override
-        void draw()
+        public void draw()
         {
             ellipseMode(CENTER);
             fill(c);
@@ -258,7 +329,7 @@ public class App extends PApplet
         }
 
         @Override
-        boolean mouseOver()
+        public boolean mouseOver()
         {
             float f = cos(a) * (pmouseX - this.x) + sin(a) * (pmouseY - this.y);
             float g = sin(a) * (pmouseX - this.x) - cos(a) * (pmouseY - this.y);
@@ -272,13 +343,13 @@ public class App extends PApplet
 
     private class Rectangle extends Shape
     {
-        Rectangle(int x, int y, int w, int h, float a, int c)
+        public Rectangle(int x, int y, int w, int h, float a, int c)
         {
             super(x, y, w, h, a, c);
         }
 
         @Override
-        void draw()
+        public void draw()
         {
             rectMode(CENTER);
             fill(c);
@@ -290,11 +361,47 @@ public class App extends PApplet
         }
 
         @Override
-        boolean mouseOver()
+        public boolean mouseOver()
         {
             float rx = (float)w / 2;
             float ry = (float)h / 2;
             return (pmouseX > x - rx) && (pmouseX < x + rx) && (pmouseY > y - ry) && (pmouseY < y + ry);
+        }
+    }
+
+    private class Image 
+    {
+        PImage image;
+        int x;
+        int y;
+
+        public Image(String path, int x, int y)
+        {
+            image = loadImage(path);
+            this.x = x;
+            this.y = y;
+        }
+
+        public Image(String path, String type, int x, int y)
+        {
+            image = loadImage(path, type);    
+            this.x = x;
+            this.y = y;
+        }
+
+        public void draw()
+        {
+            image(this.image, this.x, this.y);
+        }
+
+        public boolean mouseOver()
+        {
+            return (pmouseX > this.x) && (pmouseX < this.x + this.image.width) && (pmouseY > this.y) && (pmouseY < this.y + this.image.height);
+        }
+
+        public void resize(int w, int h)
+        {
+            this.image.resize(w, h);
         }
     }
 
