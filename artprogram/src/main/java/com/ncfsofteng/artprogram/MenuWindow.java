@@ -102,8 +102,8 @@ public class MenuWindow extends ProcessingWindow {
             this.parameter = parameter;
             this.centerX = centerX;
             this.centerY = centerY;
-            this.bWidth = buttonHeight * 4f;
-            this.bHeight = buttonHeight * 1.5f;
+            this.bWidth = buttonHeight * 6f;
+            this.bHeight = buttonHeight * 1.6f;
         }
 
         /*
@@ -116,6 +116,30 @@ public class MenuWindow extends ProcessingWindow {
             System.out.println(centerX + " " + centerY + " " + bWidth + " " + bHeight);
             if (parameter.equals("Red")){
                 fill(255,0,0);
+            }
+            else if (parameter.equals("Green")){
+                fill(0,255,0);
+            }
+            else if (parameter.equals("Blue")){
+                fill(0,0,255);
+            }
+            else if (parameter.equals("Grey")){
+                fill(128, 128, 128);
+            }
+            else if (parameter.equals("Yellow")){
+                fill(255, 255, 0);
+            }
+            else if (parameter.equals("Cyan")){
+                fill(0, 255, 255);
+            }
+            else if (parameter.equals("Orange")){
+                fill(255, 165, 0);
+            }
+            else if (parameter.equals("Magenta")){
+                fill(255, 0, 255);
+            }
+            else if (parameter.equals("Brown")){
+                fill(165, 42, 42);
             }
             else{
             fill(255);}
