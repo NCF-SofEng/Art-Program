@@ -52,8 +52,12 @@ public class ExampleDriver {
         parameters.put("Square", 0.0);
         parameters.put("Rectangle", 0.0);
         parameters.put("Ellipse", 0.0);
+        parameters.put("Pixel", 0.0);
+        parameters.put("Line", 0.0);
         parameters.put("Brush Size", 0.0);
         parameters.put("Brush Type", 0.0);
+        parameters.put("Brush Mode", 0.0);
+        parameters.put("Clipboard", 0.0);
         parameters.put("Save", 0.0);
         parameters.put("Load", 0.0);
         DrawingWindow window = new DrawingWindow(canvasWidth, canvasLength, parameters, 500, 500);
