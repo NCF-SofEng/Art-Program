@@ -50,6 +50,8 @@ public class DrawingWindow extends ProcessingWindow {
     // Objects on canvas
     private ArrayList<Shape> shapes = new ArrayList<>();
     private ArrayList<Image> images = new ArrayList<>();
+    private ArrayList<Line> lines = new ArrayList<>();
+
     private int line_x0 = 0;
     private int line_y0 = 0;
     private int line_x1 = 0;
@@ -318,6 +320,12 @@ public class DrawingWindow extends ProcessingWindow {
             shape.draw();
         }
 
+        // Draw tracked lines
+        for (Line l : lines)
+        {
+            l.draw();
+        }
+
         // Save pdf, png, and jpg
         if (this.save)
         {
@@ -414,6 +422,7 @@ public class DrawingWindow extends ProcessingWindow {
             line_x1 = mouseX;
             line_y1 = mouseY;
 
+            lines.add(new Line(line_x0, line_y0, line_x1, line_y1, setColor(color)));
 
             line_x0 = 0;
             line_y0 = 0;
@@ -673,7 +682,7 @@ public class DrawingWindow extends ProcessingWindow {
         public void draw()
         {
             stroke(c);
-            line(line_x0, line_y0, line_x1, line_y1);
+            line(x0, y0, x1, y1);
             noStroke();
         }
     }
