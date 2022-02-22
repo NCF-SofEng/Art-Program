@@ -142,9 +142,10 @@ public class DrawingWindow extends ProcessingWindow {
         noStroke();
 
         // Demo shapes
-        shapes.add(new Ellipse(width / 2 + 75, height / 2, 50, 30, -45.0f, setColor(color)));
-        shapes.add(new Rectangle(width / 2 - 75, height / 2, 50, 30, 15.0f, setColor(color)));
-        images.add(new Image("https://i.imgur.com/CXMDB5o.png", "png", 100, 100));
+        // shapes.add(new Ellipse(width / 2 + 75, height / 2, 50, 30, -45.0f, setColor(color)));
+        // shapes.add(new Rectangle(width / 2 - 75, height / 2, 50, 30, 15.0f, setColor(color)));
+        // images.add(new Image("https://i.imgur.com/CXMDB5o.png", "png", 100, 100));
+        
         // END DEVON'S STUFF
     }
     /*
@@ -302,12 +303,6 @@ public class DrawingWindow extends ProcessingWindow {
         // Redraw background so objects can move
         background(BG_COLOR);
 
-        // Draw some info
-        if (!this.save && !this.clipboard){
-            fill(color(0, 0, 0));
-            text("Mouse Position: (" + mouseX + ", " + mouseY + ")", 10, 10);
-        }
-
         // Draw tracked images
         for (Image image : images)
         {
@@ -356,6 +351,10 @@ public class DrawingWindow extends ProcessingWindow {
             // Delete temp file
             file.delete();
         }
+
+        // Draw some info
+        fill(color(0, 0, 0));
+        text("Mouse Position: (" + mouseX + ", " + mouseY + ")", 10, 10);
         // END DEVON'S STUFF
     }
 
@@ -370,7 +369,7 @@ public class DrawingWindow extends ProcessingWindow {
             switch (brush_shape)
             {
                 case 0:
-                    set(mouseX, mouseY, setColor(color));
+                    shapes.add(new Pixel(mouseX, mouseY, setColor(color)));
                     break;
                 case 1:
                     shapes.add(new Ellipse(mouseX, mouseY, 30, 50, 0.0f, setColor(color)));
@@ -597,6 +596,26 @@ public class DrawingWindow extends ProcessingWindow {
          * Returns true if the mouse is over the button on the MenuWindow
          */
         abstract public boolean mouseOver();
+    }
+
+    private class Pixel extends Shape
+    {
+        public Pixel(int x, int y, int c)
+        {
+            super(x, y, 1, 1, 0, c);
+        }
+
+        public void draw()
+        {
+            stroke(this.c);
+            point(this.x, this.y);
+            noStroke();
+        }
+
+        public boolean mouseOver()
+        {
+            return pmouseX == this.x && pmouseY == this.y;
+        }
     }
 
     /**
