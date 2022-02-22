@@ -291,6 +291,7 @@ public class DrawingWindow extends ProcessingWindow {
             shapes.clear();
             group.clear();
             lines.clear();
+            this.clear = false;
         }
 
         // BEGIN DEVON'S STUFF
