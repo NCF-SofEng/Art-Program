@@ -467,6 +467,37 @@ public class DrawingWindow extends ProcessingWindow {
      */
     public void mousePressed()
     {
+        if (mode == 0)
+        {
+            switch (brush_type)
+            {
+                case 0: // SPRAYPAINT
+                    // https://mathworld.wolfram.com/DiskPointPicking.html
+                    //for (int i = 0; i < sq(brush_size) / 2; i++)
+                    for (int i = 0; i < brush_size / 2; i++)
+                    {
+                        float a = random.nextFloat() * PI * 2;
+                        float r = sqrt(random.nextFloat()) * brush_size;
+                        float x = mouseX + r * cos(a);
+                        float y = mouseY + r * sin(a);
+                        // point((int)x, (int)y);
+                        set((int)x, (int)y, setColor(color));
+                        shapes.add(new Ellipse((int)x, (int)y, 1, 1, 0.0f, setColor(color)));
+                    }
+                    break;
+                case 1: // THIN BRUSH
+                    shapes.add(new Ellipse(mouseX, mouseY, 5, 5, 0f, setColor(color)));
+                    break;
+                case 2: // THICK BRUSH
+                    shapes.add(new Ellipse(mouseX, mouseY, 30, 30, 0f, setColor(color)));
+                    break;
+                case 3: // CUSTOM BRUSH
+                    shapes.add(new Ellipse(mouseX, mouseY, brush_size, brush_size, 0f, setColor(color)));
+                    break;
+                default:
+                    break;
+            }
+        }
         if (mode == 1) // SHAPE MODE
         {
             switch (brush_shape)
