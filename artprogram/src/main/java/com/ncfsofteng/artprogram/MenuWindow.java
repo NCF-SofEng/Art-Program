@@ -144,7 +144,7 @@ public class MenuWindow extends ProcessingWindow {
             else{
             fill(255);}
             textAlign(CENTER);
-            text(parameter, centerX, centerY - (bHeight / 20));
+            text(parameter, centerX, centerY - (bHeight / 20) + 10);
             fill(0);
         }
 
