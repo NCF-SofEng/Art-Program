@@ -302,6 +302,12 @@ public class DrawingWindow extends ProcessingWindow {
             shape.draw();
         }
 
+        // Draw group
+        for (Shape shape : group)
+        {
+            shape.draw();
+        }
+
         // Draw tracked lines
         for (Line l : lines)
         {
@@ -345,11 +351,23 @@ public class DrawingWindow extends ProcessingWindow {
         // END DEVON'S STUFF
     }
 
+    public void mouseClicked()
+    {
+        if (mode == 2) // MANIPULATE MODE
+        {
+            for (Shape shape : shapes)
+            {
+                if (shape.mouseOver(pmouseX, pmouseY))
+                    shape.c = setColor(color);
+            }
+        }
+    }
+
     /**
      * DEVON'S STUFF
      * TODO: INSERT DOCSTRING HERE
      */
-    public void mouseClicked()
+    public void mousePressed()
     {
         if (mode == 1) // SHAPE MODE
         {
@@ -370,40 +388,47 @@ public class DrawingWindow extends ProcessingWindow {
                 case 4: // SQUARE
                     shapes.add(new Rectangle(mouseX, mouseY, 40, 40, 0.0f, setColor(color)));
                     break;
+                case 5: // LINE
+                    // Get first point for line
+                    line_x0 = mouseX;
+                    line_y0 = mouseY;
+                    break;
                 default:
                     break;
             }
         }
-        else if (mode == 2) // MANIPULATE MODE
-        {
-            for (Shape shape : shapes)
-            {
-                if (shape.mouseOver(pmouseX, pmouseY))
-                    shape.c = setColor(color);
-            }
-        }
         else if (mode == 3) // GROUP MODE
         {
+            // Add selected shapes to group
+            int init_group_size = group.size();
             for (Shape shape : shapes)
             {
                 if (shape.mouseOver(pmouseX, pmouseY))
                 {
                     group.add(shape);
                 }
-            }
-        }
-    }
 
-    /**
-     * DEVON'S STUFF
-     * TODO: ADD DOCSTRING HERE
-     */
-    public void mousePressed()
-    {
-        if (mode == 1 && brush_shape == 5)
-        {
-            line_x0 = mouseX;
-            line_y0 = mouseY;
+            }
+            int final_group_size = group.size();
+
+            // Remove selected shapes from normal shape pool
+            for (Shape shape : group)
+            {
+                shapes.remove(shape);
+            }
+
+            // If clicking on nothing then clear group
+            if (final_group_size - init_group_size == 0)
+            {
+                // Add shapes in group back to main shape pool
+                for (Shape shape : group)
+                {
+                    shapes.add(shape);
+                }
+
+                // Clear group
+                group.clear();
+            }
         }
     }
 
@@ -413,6 +438,7 @@ public class DrawingWindow extends ProcessingWindow {
      */
     public void mouseReleased()
     {
+        // Get second shape for line and create the line
         if (mode == 1 && brush_shape == 5)
         {
             line_x1 = mouseX;
@@ -420,6 +446,7 @@ public class DrawingWindow extends ProcessingWindow {
 
             lines.add(new Line(line_x0, line_y0, line_x1, line_y1, setColor(color)));
 
+            // Reset first and second point just in case. 
             line_x0 = 0;
             line_y0 = 0;
             line_x1 = 0;
@@ -474,6 +501,28 @@ public class DrawingWindow extends ProcessingWindow {
                     shape.move(mouseX - pmouseX, mouseY - pmouseY);
                 }
             }
+
+            // See if a shape in the group has been moved
+            boolean moved = false;
+            for (Shape shape : group)
+            {
+                if (shape.mouseOver(pmouseX, pmouseY))
+                {
+                    moved = true;
+                    break;
+                }
+            }
+            
+            // If any shape in the group is moved, move them all
+            if (moved)
+            {
+                for (Shape shape : group)
+                {
+                    shape.move(mouseX - pmouseX, mouseY - pmouseY);
+                }
+            }
+
+            
         }
     }
 
