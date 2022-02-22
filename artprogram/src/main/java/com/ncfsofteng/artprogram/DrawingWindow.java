@@ -62,7 +62,7 @@ public class DrawingWindow extends ProcessingWindow {
     private int color = 0; // 0-10: RED/GREEN/BLUE/WHITE/GREY/BLACK/YELLOW/CYAN/MAGENTA/ORANGE/BROWN
     private int brush_shape = 2; // 0-5: PIXEL/ELLIPSE/CIRCLE/RECTANGLE/SQUARE/LINE
     private int brush_type = 3; // 0-3: SprayPaint/Thin/Thick/Custom
-    private int mode = 0; // 0-4: BRUSH/SHAPE/MANIPULATE/GROUP/DUPLICATE
+    private int mode = 0; // 0-5: BRUSH/SHAPE/MANIPULATE/GROUP/DUPLICATE/MAGICWAND
     private boolean save = false;
     private boolean clipboard = false;
     private boolean clear = false;
@@ -193,7 +193,7 @@ public class DrawingWindow extends ProcessingWindow {
         //Does Magic :D...In reality, it's just an eraser.
         if(magic == 1.0){
             parameters.put("Magic Wand", 0.0);
-
+            mode = 5;
         }
         //Sets the current place object as a circle.
         if(circle == 1.0){
@@ -640,6 +640,29 @@ public class DrawingWindow extends ProcessingWindow {
             }
 
             
+        }
+        else if (mode == 5)
+        {
+            // If over a regular shape just remove that shape
+            Shape shape_to_remove = null;
+            for (Shape shape : shapes)
+            {
+                if (shape.mouseOver(pmouseX, pmouseY))
+                {
+                    shape_to_remove = shape;
+                }
+            }
+            shapes.remove(shape_to_remove);
+
+            // If over a grouped shape remove the whole group
+            for (Shape shape : group)
+            {
+                if (shape.mouseOver(pmouseX, pmouseY))
+                {
+                    break;
+                }
+            }
+            group.clear();
         }
     }
 
