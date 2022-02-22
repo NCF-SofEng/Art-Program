@@ -3,7 +3,7 @@ package com.ncfsofteng.artprogram;
 /**
  * DrawingWindow.java
  * @author AdamAnderson
- *
+ * @edited by Devon Gardner and Damien Razdan
  * A DrawingWindow is a window used by Processing that is paired with a MenuWindow
  * to allow for easy adjustment of parameters during the execution of a Processing sketch.
  * Parameters are stored in a Map that assigns parameter names to doubles representing their

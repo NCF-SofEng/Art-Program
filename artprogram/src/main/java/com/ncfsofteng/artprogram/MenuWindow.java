@@ -3,7 +3,7 @@ package com.ncfsofteng.artprogram;
 /**
  * MenuWindow.java
  * @author AdamAnderson
- *
+ * @edited by Damien Razdan
  * A MenuWindow is created alongside a DrawingWindow to allow for parameter
  * tweaking while a Processing Sketch is being run. A MenuWindow displays
  * buttons with the names of all of the parameters specified
