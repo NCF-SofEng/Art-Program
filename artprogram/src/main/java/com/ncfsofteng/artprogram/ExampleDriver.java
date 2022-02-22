@@ -58,8 +58,10 @@ public class ExampleDriver {
         parameters.put("Brush Type", 0.0);
         parameters.put("Brush Mode", 0.0);
         parameters.put("Clipboard", 0.0);
+        parameters.put("Clear", 0.0);
         parameters.put("Save", 0.0);
         parameters.put("Load", 0.0);
+        parameters.put("Magic Wand", 0.0);
         DrawingWindow window = new DrawingWindow(canvasWidth, canvasLength, parameters, 500, 500);
         window.createWindow();
     }

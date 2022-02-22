@@ -60,7 +60,7 @@ public class MenuWindow extends ProcessingWindow {
     public void draw() {
         Set<String> parameterNames = parameters.keySet();
         int numParameters = parameterNames.size();
-        float verticalSpacing = ((float) height / (float) (numParameters/2));
+        float verticalSpacing = ((float) height / (float) (numParameters/2.5));
         float buttonX[] = new float[3];
         buttonX[0] = (float) (width / 4.5);
         buttonX[1] = (float) (width / 2);
@@ -110,6 +110,9 @@ public class MenuWindow extends ProcessingWindow {
          * Draws the button to the output window
          */
         private void draw() {
+            if(parameter.equals("Magic Wand")){
+                this.centerX = width / 2;
+            }
             rectMode(CENTER);
             fill(50);
             rect(centerX, centerY, bWidth, bHeight);
@@ -169,6 +172,7 @@ public class MenuWindow extends ProcessingWindow {
 
 
     public void setup() {
+        surface.setResizable(true);
         background(255);
         fill(0);
         textSize(TEXT_SIZE);

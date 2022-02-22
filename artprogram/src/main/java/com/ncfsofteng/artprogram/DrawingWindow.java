@@ -173,6 +173,16 @@ public class DrawingWindow extends ProcessingWindow {
         float brushMode = parameters.get("Brush Mode").floatValue();
         float load = parameters.get("Load").floatValue();
         float clipboard = parameters.get("Clipboard").floatValue();
+        float clear = parameters.get("Clear").floatValue();
+        float magic = parameters.get("Magic Wand").floatValue();
+        if(clear == 1.0){
+            this.clear = true;
+            parameters.put("Clear", 0.0);
+        }
+        if(magic == 1.0){
+            parameters.put("Magic Wand", 0.0);
+
+        }
         if(circle == 1.0){
             parameters.put("Circle", 0.0);
             this.brush_shape = 2;
