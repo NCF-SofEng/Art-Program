@@ -42,7 +42,10 @@ public class DrawingWindow extends ProcessingWindow {
     // BEGIN DEVON'S STUFF
     // Miscellaneous things
     private Random random = new Random(0);
+    private boolean save = false;
     private String save_file = "out";
+    private boolean clipboard = false;
+    private boolean clear = false;
 
     // Canvas settings
     private final int BG_COLOR = color(255, 255, 255);
@@ -63,9 +66,6 @@ public class DrawingWindow extends ProcessingWindow {
     private int brush_shape = 2; // 0-5: PIXEL/ELLIPSE/CIRCLE/RECTANGLE/SQUARE/LINE
     private int brush_type = 3; // 0-3: SprayPaint/Thin/Thick/Custom
     private int mode = 0; // 0-5: BRUSH/SHAPE/MANIPULATE/GROUP/DUPLICATE/MAGICWAND
-    private boolean save = false;
-    private boolean clipboard = false;
-    private boolean clear = false;
     // END DEVON'S STUFF
 
     /**
@@ -320,16 +320,18 @@ public class DrawingWindow extends ProcessingWindow {
             parameters.put("Clipboard", 0.0);
             this.clipboard = true;
         }
-        //clears the canvas.
+
+        // BEGIN DEVON'S STUFF
+        // Clears the canvas.
         if (this.clear)
         {
+            // Remove all objects from canvas
             shapes.clear();
             group.clear();
             lines.clear();
             this.clear = false;
         }
 
-        // BEGIN DEVON'S STUFF
         // Begin recording if save flag triggered
         if (this.save)
         {
@@ -368,6 +370,7 @@ public class DrawingWindow extends ProcessingWindow {
             this.save = false;
         }
 
+        // Copy current canvas to clipboard
         if (this.clipboard)
         {
             // Create temp image from canvas
@@ -386,24 +389,30 @@ public class DrawingWindow extends ProcessingWindow {
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(imageSelection, null);
 
             this.clipboard = false;
+            
             // Delete temp file
             file.delete();
         }
 
         // Draw some info
-        fill(color(0, 0, 0));
+        fill(setColor(5));
         text("Mouse Position: (" + mouseX + ", " + mouseY + ")", 10, 10);
         // END DEVON'S STUFF
     }
 
+    /**
+     * Duplicate an object that the mouse is over.
+     */
     public void duplicate()
     {
         // Duplicate shape to the center of the window
         ArrayList<Shape> temp_shapes = new ArrayList<>();
         for (Shape shape : shapes)
         {
+            // Check if mouse is over current shape in loop
             if (shape.mouseOver(pmouseX, pmouseY))
             {
+                // Determine what to do based on what type of shape it is.
                 switch (shape.type) {
                     case "Pixel": // PIXEL
                         temp_shapes.add(new Pixel(width / 2, height / 2, shape.c));
@@ -421,17 +430,19 @@ public class DrawingWindow extends ProcessingWindow {
         }
         // Add shapes to main shape pool
         shapes.addAll(temp_shapes);
+        // Clear out temp shapes
         temp_shapes.clear();
 
+        // Duplicate all grouped objects to the center of the window
         boolean duplicate_group = false;
-        int dx = 0;
-        int dy = 0;
+        int dx = 0; // x offset
+        int dy = 0; // y offset
         for (Shape shape : group)
         {
             if (shape.mouseOver(pmouseX, pmouseY))
             {
                 duplicate_group = true;
-                // Distance to move all items in group
+                // Set x and y offsets to move selected object to center of screen
                 dx = (width / 2) - shape.x;
                 dy = (height / 2 ) - shape.y;
             }
@@ -444,6 +455,7 @@ public class DrawingWindow extends ProcessingWindow {
             ArrayList<Shape> temp_group = new ArrayList<>();
             for (Shape shape : group)
             {
+                // Determine what to do based on what type of shape it is.
                 switch (shape.type) {
                     case "Pixel": // PIXEL
                         temp_group.add(new Pixel(shape.x + dx, shape.y + dy, shape.c));
@@ -469,8 +481,13 @@ public class DrawingWindow extends ProcessingWindow {
         }
     }
 
+    /**
+     * When left mouse button is initially pressed down
+     * do these things.
+     */
     public void mouseClicked()
     {
+        // If we are in manipulate mode we change the color of a shape that is clicked
         if (mode == 2) // MANIPULATE MODE
         {
             for (Shape shape : shapes)
@@ -480,6 +497,7 @@ public class DrawingWindow extends ProcessingWindow {
                     shape.c = setColor(color);
             }
         }
+        // If we are in duplicate mode we duplicate the shape/group that has been clicked
         if (mode == 4) // DUPLICATE MODE
         {
             duplicate();
@@ -487,27 +505,32 @@ public class DrawingWindow extends ProcessingWindow {
     }
 
     /**
-     * DEVON'S STUFF
-     * TODO: INSERT DOCSTRING HERE
+     * When left mouse is pressed down and then released
+     * do these things.
      */
     public void mousePressed()
     {
-        if (mode == 0)
+        // If we are in brush mode we lay the first shape to be drawn before mouseDragged()
+        if (mode == 0) // BRUSH MODE (drawing)
         {
+            // Determine what shapes to lay down
             switch (brush_type)
             {
                 case 0: // SPRAYPAINT
-                    // https://mathworld.wolfram.com/DiskPointPicking.html
-                    //for (int i = 0; i < sq(brush_size) / 2; i++)
+                    // Randomly fill the area brush_size with colored pixels
+                    // to give a spraypaint effect
                     for (int i = 0; i < brush_size / 2; i++)
                     {
+                        // Choose random angle in circle for a pixel
                         float a = random.nextFloat() * PI * 2;
+                        // Choose random distance from center of circle (0 to brush_size)
                         float r = sqrt(random.nextFloat()) * brush_size;
+                        // Calculate the x and y values for the pixel vased on angle and radius
+                        // Mouse position is center of circle
                         float x = mouseX + r * cos(a);
                         float y = mouseY + r * sin(a);
-                        // point((int)x, (int)y);
-                        set((int)x, (int)y, setColor(color));
-                        shapes.add(new Ellipse((int)x, (int)y, 1, 1, 0.0f, setColor(color)));
+                        // Draw pixel with selected color
+                        shapes.add(new Pixel((int)x, (int)y, setColor(color)));
                     }
                     break;
                 case 1: // THIN BRUSH
@@ -523,8 +546,11 @@ public class DrawingWindow extends ProcessingWindow {
                     break;
             }
         }
+        // If we are in shape mode we lay down a single shape
         if (mode == 1) // SHAPE MODE
         {
+            // Determines what shape to use
+            // In future versions height and width of shape will be user defined.
             switch (brush_shape)
             {
                 case 0: // PIXEL
@@ -551,6 +577,7 @@ public class DrawingWindow extends ProcessingWindow {
                     break;
             }
         }
+        // If in group mode move selected objects into a group
         else if (mode == 3) // GROUP MODE
         {
             // Add selected shapes to group
@@ -568,7 +595,7 @@ public class DrawingWindow extends ProcessingWindow {
             // Remove selected shapes from normal shape pool
             shapes.removeAll(group);
 
-            // If clicking on nothing then clear group
+            // If no new shape is added on a click then clear group
             if (final_group_size - init_group_size == 0)
             {
                 // Add shapes in group back to main shape pool
@@ -581,17 +608,18 @@ public class DrawingWindow extends ProcessingWindow {
     }
 
     /**
-     * DEVON'S STUFF
-     * TODO: ADD DOCSTRING HERE
+     * When left mouse is released do these things.
      */
     public void mouseReleased()
     {
-        // Get second shape for line and create the line
+        // If the current brush mode is SHAPE and current shape is LINE
         if (mode == 1 && brush_shape == 5)
         {
+            // Get second point for line and create the line
             line_x1 = mouseX;
             line_y1 = mouseY;
 
+            // Add line to line collection to be drawn on the canvas
             lines.add(new Line(line_x0, line_y0, line_x1, line_y1, setColor(color)));
 
             // Reset first and second point just in case. 
@@ -603,27 +631,32 @@ public class DrawingWindow extends ProcessingWindow {
     }
 
     /**
-     * DEVON'S STUFF
-     * TODO: ADD DOCSTRING HERE
+     * When left mouse is pressed and then dragged
+     * do these things.
      */
     public void mouseDragged()
     {
+        // If we are in brush mode lay down circles everywhere the mouse has moved
         if (mode == 0)
         {
+            // Determine which brush to use.
             switch (brush_type)
             {
                 case 0: // SPRAYPAINT
-                    // https://mathworld.wolfram.com/DiskPointPicking.html
-                    //for (int i = 0; i < sq(brush_size) / 2; i++)
+                    // Randomly fill the area brush_size with colored pixels
+                    // to give a spraypaint effect
                     for (int i = 0; i < brush_size / 2; i++)
                     {
+                        // Choose random angle in circle for a pixel
                         float a = random.nextFloat() * PI * 2;
+                        // Choose random distance from center of circle (0 to brush_size)
                         float r = sqrt(random.nextFloat()) * brush_size;
+                        // Calculate the x and y values for the pixel vased on angle and radius
+                        // Mouse position is center of circle
                         float x = mouseX + r * cos(a);
                         float y = mouseY + r * sin(a);
-                        // point((int)x, (int)y);
-                        set((int)x, (int)y, setColor(color));
-                        shapes.add(new Ellipse((int)x, (int)y, 1, 1, 0.0f, setColor(color)));
+                        // Draw pixel with selected color
+                        shapes.add(new Pixel((int)x, (int)y, setColor(color)));
                     }
                     break;
                 case 1: // THIN BRUSH
@@ -639,7 +672,8 @@ public class DrawingWindow extends ProcessingWindow {
                     break;
             }
         }
-        else if (mode == 2)
+        // If in manipulate mode move a shape/group dragged by the mouse
+        else if (mode == 2) // MANIPULATE MODE
         {
             // Move shapes if mouse is over them and dragging
             for (Shape shape : shapes)
@@ -650,7 +684,7 @@ public class DrawingWindow extends ProcessingWindow {
                 }
             }
 
-            // See if a shape in the group has been moved
+            // Check if a shape in the group is being moved
             boolean moved = false;
             for (Shape shape : group)
             {
@@ -661,7 +695,7 @@ public class DrawingWindow extends ProcessingWindow {
                 }
             }
             
-            // If any shape in the group is moved, move them all
+            // If any shape in the group is being moved, move them all
             if (moved)
             {
                 for (Shape shape : group)
@@ -672,7 +706,8 @@ public class DrawingWindow extends ProcessingWindow {
 
             
         }
-        else if (mode == 5)
+        // If in magic wand mode delete any objects the mouse drags over
+        else if (mode == 5) // MAGICWAND MODE
         {
             // If over a regular shape just remove that shape
             Shape shape_to_remove = null;
@@ -686,40 +721,48 @@ public class DrawingWindow extends ProcessingWindow {
             shapes.remove(shape_to_remove);
 
             // If over a grouped shape remove the whole group
+            boolean clear_group = false;
             for (Shape shape : group)
             {
                 if (shape.mouseOver(pmouseX, pmouseY))
                 {
+                    clear_group = true;
                     break;
                 }
             }
-            group.clear();
+
+            // Clear whole group
+            if (clear_group)
+            {
+                group.clear();
+            }
         }
     }
 
     /**
-     * DEVON'S STUFF
-     * TODO: INSERT DOCSTRING HERE
-     * @param selection
+     * Takes in an image and adds to list of things to draw on the canvas 
+     * @param image image to be drawn
      */
-    public void localImage(File selection)
+    public void localImage(File image)
     {
-        if (selection != null)
+        // If the image isn't empty
+        if (image != null)
         {
-            shapes.add(new Image(selection.getAbsolutePath(), width / 2, height / 2));
+            // Process the image into a Processing PImage and add it to draw list
+            shapes.add(new Image(image.getAbsolutePath(), width / 2, height / 2));
         }
     }
 
     /**
-     * DEVON'S STUFF
-     * TODO: INSERT DOCSTRING HERE
-     * @param color
-     * @return
+     * Convert color index to Processing rgb color integer
+     * @param color index of color to be converted
+     * @return Processing rgb color integer
      */
     private int setColor(int color)
     {
         int c;
 
+        // Convert index to Processing rgb color integer
         switch (color) {
             case 0: // RED
                 c = color(255, 0, 0);
@@ -795,22 +838,30 @@ public class DrawingWindow extends ProcessingWindow {
             this.c = c;
         }
 
-        /*
+        /**
          * Draws the button to the output window
          */
         abstract public void draw();
 
-        /*
+        /**
          * Returns true if the mouse is over the button on the MenuWindow
+         * @param x x coordinate of mouse
+         * @param y y coordinate of mouse
+         * @return mouse over status
          */
         abstract public boolean mouseOver(int x, int y);
         
         /**
-         * Moves center of shape to given coordinates
+         * Moves shape by given offset
+         * @param dx change in x
+         * @param dy change in y
          */
         abstract public void move(int dx, int dy);
     }
 
+    /**
+     * Inner class representing a pixel on the canvas
+     */
     private class Pixel extends Shape
     {
 
@@ -885,6 +936,9 @@ public class DrawingWindow extends ProcessingWindow {
         }
     }
 
+    /**
+     * Inner class representing a rectangle on the canvas
+     */
     private class Rectangle extends Shape
     {
         public Rectangle(int x, int y, int w, int h, float a, int c)
@@ -921,6 +975,9 @@ public class DrawingWindow extends ProcessingWindow {
         }
     }
 
+    /**
+     * Inner class representing an image on the canvas
+     */
     private class Image extends Shape
     {
         PImage image;
@@ -970,6 +1027,9 @@ public class DrawingWindow extends ProcessingWindow {
         }
     }
 
+    /**
+     * Inner class representing a line on the canvas
+     */
     private class Line
     {
         int x0;
@@ -995,7 +1055,9 @@ public class DrawingWindow extends ProcessingWindow {
         }
     }
 
-    // This class is used to hold an image while on the clipboard.
+    /**
+     * This class is used to hold an image while on the clipboard.
+     */
     static class ImageSelection implements Transferable
     {
         private java.awt.Image image;
@@ -1005,19 +1067,25 @@ public class DrawingWindow extends ProcessingWindow {
             this.image = image;
         }
 
-        // Returns supported flavors
+        /**
+         * Returns supported flavors
+         */
         public DataFlavor[] getTransferDataFlavors()
         {
             return new DataFlavor[] { DataFlavor.imageFlavor };
         }
 
-        // Returns true if flavor is supported
+        /**
+         * Returns true if flavor is supported
+         */
         public boolean isDataFlavorSupported(DataFlavor flavor)
         {
             return DataFlavor.imageFlavor.equals(flavor);
         }
 
-        // Returns image
+        /**
+         * Returns image
+         */
         public Object getTransferData(DataFlavor flavor)
                 throws UnsupportedFlavorException, IOException
         {
