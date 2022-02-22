@@ -49,8 +49,8 @@ public class DrawingWindow extends ProcessingWindow {
 
     // Objects on canvas
     private ArrayList<Shape> shapes = new ArrayList<>();
-    private ArrayList<Image> images = new ArrayList<>();
     private ArrayList<Line> lines = new ArrayList<>();
+    private ArrayList<Shape> group = new ArrayList<>();
 
     private int line_x0 = 0;
     private int line_y0 = 0;
@@ -62,9 +62,10 @@ public class DrawingWindow extends ProcessingWindow {
     private int color = 0; // 0-10: RED/GREEN/BLUE/WHITE/GREY/BLACK/YELLOW/CYAN/MAGENTA/ORANGE/BROWN
     private int brush_shape = 2; // 0-5: PIXEL/ELLIPSE/CIRCLE/RECTANGLE/SQUARE/LINE
     private int brush_type = 3; // 0-3: SprayPaint/Thin/Thick/Custom
-    private int mode = 0; // 0-2: BRUSH/SHAPE/MANIPULATE
+    private int mode = 0; // 0-4: BRUSH/SHAPE/MANIPULATE/GROUP/DUPLICATE
     private boolean save = false;
     private boolean clipboard = false;
+    private boolean clear = false;
     // END DEVON'S STUFF
 
     /**
@@ -140,11 +141,6 @@ public class DrawingWindow extends ProcessingWindow {
         rectMode(CORNER);
         textAlign(LEFT, TOP);
         noStroke();
-
-        // Demo shapes
-        shapes.add(new Ellipse(width / 2 + 75, height / 2, 50, 30, -45.0f, setColor(color)));
-        shapes.add(new Rectangle(width / 2 - 75, height / 2, 50, 30, 15.0f, setColor(color)));
-        images.add(new Image("https://i.imgur.com/CXMDB5o.png", "png", 100, 100));
         // END DEVON'S STUFF
     }
     /*
@@ -196,7 +192,6 @@ public class DrawingWindow extends ProcessingWindow {
         if(pixel == 1.0){
             parameters.put("Pixel", 0.0);
             this.brush_shape = 0;
-            // TODO: PIXEL SHAPE NOT WORKING
         }
         if(line == 1.0){
             parameters.put("Line", 0.0);
@@ -234,7 +229,7 @@ public class DrawingWindow extends ProcessingWindow {
         }
         if(brushMode == 1.0){
             parameters.put("Brush Mode", 0.0);
-            String input = JOptionPane.showInputDialog("Please select a brush mode by entering the number corresponding to the desired brush type.!\n 0: Brush\n 1: Shape\n 2: Manipulate");
+            String input = JOptionPane.showInputDialog("Please select a brush mode by entering the number corresponding to the desired brush type.!\n 0: Brush\n 1: Shape\n 2: Manipulate\n 3: Group\n 4: Duplicate");
             try {
                 mode = Integer.parseInt(input);
             }
@@ -291,6 +286,13 @@ public class DrawingWindow extends ProcessingWindow {
             this.clipboard = true;
         }
 
+        if (this.clear)
+        {
+            shapes.clear();
+            group.clear();
+            lines.clear();
+            this.clear = false;
+        }
 
         // BEGIN DEVON'S STUFF
         // Begin recording if save flag triggered
@@ -302,22 +304,18 @@ public class DrawingWindow extends ProcessingWindow {
         // Redraw background so objects can move
         background(BG_COLOR);
 
-        // Draw some info
-        if (!this.save && !this.clipboard){
-            fill(color(0, 0, 0));
-            text("Mouse Position: (" + mouseX + ", " + mouseY + ")", 10, 10);
-        }
-
-        // Draw tracked images
-        for (Image image : images)
-        {
-            image.draw();
-        }
-
-        // Draw tracked shapes
+        // Draw tracked shapes (includes images)
         for (Shape shape : shapes)
         {
             shape.draw();
+        }
+
+        // Draw group with a border around shapes
+        for (Shape shape : group)
+        {
+            stroke(setColor(4));
+            shape.draw();
+            noStroke();
         }
 
         // Draw tracked lines
@@ -356,58 +354,163 @@ public class DrawingWindow extends ProcessingWindow {
             // Delete temp file
             file.delete();
         }
+
+        // Draw some info
+        fill(color(0, 0, 0));
+        text("Mouse Position: (" + mouseX + ", " + mouseY + ")", 10, 10);
         // END DEVON'S STUFF
+    }
+
+    public void duplicate()
+    {
+        // Duplicate shape to the center of the window
+        ArrayList<Shape> temp_shapes = new ArrayList<>();
+        for (Shape shape : shapes)
+        {
+            if (shape.mouseOver(pmouseX, pmouseY))
+            {
+                switch (shape.type) {
+                    case "Pixel": // PIXEL
+                        temp_shapes.add(new Pixel(width / 2, height / 2, shape.c));
+                        break;
+                    case "Ellipse": // ELLIPSE/CIRCLE
+                        temp_shapes.add(new Ellipse(width / 2, height / 2, shape.w, shape.h, degrees(shape.a), shape.c));
+                        break;
+                    case "Rectangle": // RECTANGLE/SQUARE
+                        temp_shapes.add(new Rectangle(width / 2, height / 2, shape.w, shape.h, degrees(shape.a), shape.c));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        // Add shapes to main shape pool
+        shapes.addAll(temp_shapes);
+        temp_shapes.clear();
+
+        boolean duplicate_group = false;
+        int dx = 0;
+        int dy = 0;
+        for (Shape shape : group)
+        {
+            if (shape.mouseOver(pmouseX, pmouseY))
+            {
+                duplicate_group = true;
+                // Distance to move all items in group
+                dx = (width / 2) - shape.x;
+                dy = (height / 2 ) - shape.y;
+            }
+        }
+
+        // Duplicate the group at the center of the canvas
+        if (duplicate_group)
+        {
+            // Duplicate shapes into a temp group
+            ArrayList<Shape> temp_group = new ArrayList<>();
+            for (Shape shape : group)
+            {
+                switch (shape.type) {
+                    case "Pixel": // PIXEL
+                        temp_group.add(new Pixel(shape.x + dx, shape.y + dy, shape.c));
+                        break;
+                    case "Ellipse": // ELLIPSE/CIRCLE
+                        temp_group.add(new Ellipse(shape.x + dx, shape.y + dy, shape.w, shape.h, degrees(shape.a), shape.c));
+                        break;
+                    case "Rectangle": // RECTANGLE/SQUARE
+                        temp_group.add(new Rectangle(shape.x + dx, shape.y + dy, shape.w, shape.h, degrees(shape.a), shape.c));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Move everything out of the old group into main shape pool
+            shapes.addAll(group);
+            group.clear();
+
+            // Move temp group contents to main group
+            group.addAll(temp_group);
+            temp_group.clear();
+        }
+    }
+
+    public void mouseClicked()
+    {
+        if (mode == 2) // MANIPULATE MODE
+        {
+            for (Shape shape : shapes)
+            {
+                if (shape.mouseOver(pmouseX, pmouseY))
+
+                    shape.c = setColor(color);
+            }
+        }
+        if (mode == 4) // DUPLICATE MODE
+        {
+            duplicate();
+        }
     }
 
     /**
      * DEVON'S STUFF
      * TODO: INSERT DOCSTRING HERE
      */
-    public void mouseClicked()
+    public void mousePressed()
     {
-        if (mode == 1)
+        if (mode == 1) // SHAPE MODE
         {
             switch (brush_shape)
             {
-                case 0:
-                    set(mouseX, mouseY, setColor(color));
+                case 0: // PIXEL
+                    shapes.add(new Pixel(mouseX, mouseY, setColor(color)));
                     break;
-                case 1:
+                case 1: // ELLIPSE
                     shapes.add(new Ellipse(mouseX, mouseY, 30, 50, 0.0f, setColor(color)));
                     break;
-                case 2:
+                case 2: // CIRCLE
                     shapes.add(new Ellipse(mouseX, mouseY, 30, 30, 0.0f, setColor(color)));
                     break;
-                case 3:
+                case 3: // RECTANGLE
                     shapes.add(new Rectangle(mouseX, mouseY, 40, 60, 0.0f, setColor(color)));
                     break;
-                case 4:
+                case 4: // SQUARE
                     shapes.add(new Rectangle(mouseX, mouseY, 40, 40, 0.0f, setColor(color)));
+                    break;
+                case 5: // LINE
+                    // Get first point for line
+                    line_x0 = mouseX;
+                    line_y0 = mouseY;
                     break;
                 default:
                     break;
             }
         }
-        else if (mode == 2)
+        else if (mode == 3) // GROUP MODE
         {
+            // Add selected shapes to group
+            int init_group_size = group.size();
             for (Shape shape : shapes)
             {
-                if (shape.mouseOver())
-                    shape.c = setColor(color);
-            }
-        }
-    }
+                if (shape.mouseOver(pmouseX, pmouseY))
+                {
+                    group.add(shape);
+                }
 
-    /**
-     * DEVON'S STUFF
-     * TODO: ADD DOCSTRING HERE
-     */
-    public void mousePressed()
-    {
-        if (mode == 1 && brush_shape == 5)
-        {
-            line_x0 = mouseX;
-            line_y0 = mouseY;
+            }
+            int final_group_size = group.size();
+
+            // Remove selected shapes from normal shape pool
+            shapes.removeAll(group);
+
+            // If clicking on nothing then clear group
+            if (final_group_size - init_group_size == 0)
+            {
+                // Add shapes in group back to main shape pool
+                shapes.addAll(group);
+
+                // Clear group
+                group.clear();
+            }
         }
     }
 
@@ -417,6 +520,7 @@ public class DrawingWindow extends ProcessingWindow {
      */
     public void mouseReleased()
     {
+        // Get second shape for line and create the line
         if (mode == 1 && brush_shape == 5)
         {
             line_x1 = mouseX;
@@ -424,6 +528,7 @@ public class DrawingWindow extends ProcessingWindow {
 
             lines.add(new Line(line_x0, line_y0, line_x1, line_y1, setColor(color)));
 
+            // Reset first and second point just in case. 
             line_x0 = 0;
             line_y0 = 0;
             line_x1 = 0;
@@ -455,11 +560,11 @@ public class DrawingWindow extends ProcessingWindow {
                         shapes.add(new Ellipse((int)x, (int)y, 1, 1, 0.0f, setColor(color)));
                     }
                     break;
-                case 1: // THICK BRUSH
-                    shapes.add(new Ellipse(mouseX, mouseY, 30, 30, 0f, setColor(color)));
-                    break;
-                case 2: // THIN BRUSH
+                case 1: // THIN BRUSH
                     shapes.add(new Ellipse(mouseX, mouseY, 5, 5, 0f, setColor(color)));
+                    break;
+                case 2: // THICK BRUSH
+                    shapes.add(new Ellipse(mouseX, mouseY, 30, 30, 0f, setColor(color)));
                     break;
                 case 3: // CUSTOM BRUSH
                     shapes.add(new Ellipse(mouseX, mouseY, brush_size, brush_size, 0f, setColor(color)));
@@ -473,22 +578,33 @@ public class DrawingWindow extends ProcessingWindow {
             // Move shapes if mouse is over them and dragging
             for (Shape shape : shapes)
             {
-                if (shape.mouseOver())
+                if (shape.mouseOver(pmouseX, pmouseY))
                 {
-                    shape.x = mouseX;
-                    shape.y = mouseY;
+                    shape.move(mouseX - pmouseX, mouseY - pmouseY);
                 }
             }
 
-            // Move images if mouse is over them and dragging
-            for (Image image : images)
+            // See if a shape in the group has been moved
+            boolean moved = false;
+            for (Shape shape : group)
             {
-                if (image.mouseOver())
+                if (shape.mouseOver(pmouseX, pmouseY))
                 {
-                    image.x = mouseX - image.image.width / 2;
-                    image.y = mouseY - image.image.height / 2;
+                    moved = true;
+                    break;
                 }
             }
+            
+            // If any shape in the group is moved, move them all
+            if (moved)
+            {
+                for (Shape shape : group)
+                {
+                    shape.move(mouseX - pmouseX, mouseY - pmouseY);
+                }
+            }
+
+            
         }
     }
 
@@ -501,7 +617,7 @@ public class DrawingWindow extends ProcessingWindow {
     {
         if (selection != null)
         {
-            images.add(new Image(selection.getAbsolutePath(), width / 2, height / 2));
+            shapes.add(new Image(selection.getAbsolutePath(), width / 2, height / 2));
         }
     }
 
@@ -569,6 +685,8 @@ public class DrawingWindow extends ProcessingWindow {
         protected float a;
         protected int c;
 
+        protected String type;
+
         /**
          * Geometric description of the shape.
          * @param x Center x value
@@ -596,7 +714,43 @@ public class DrawingWindow extends ProcessingWindow {
         /*
          * Returns true if the mouse is over the button on the MenuWindow
          */
-        abstract public boolean mouseOver();
+        abstract public boolean mouseOver(int x, int y);
+        
+        /**
+         * Moves center of shape to given coordinates
+         */
+        abstract public void move(int dx, int dy);
+    }
+
+    private class Pixel extends Shape
+    {
+
+        public Pixel(int x, int y, int c)
+        {
+            super(x, y, 1, 1, 0, c);
+            type = "Pixel";
+        }
+
+        @Override
+        public void draw()
+        {
+            stroke(this.c);
+            point(this.x, this.y);
+            noStroke();
+        }
+
+        @Override
+        public boolean mouseOver(int x, int y)
+        {
+            return x == this.x && x == this.y;
+        }
+
+        @Override
+        public void move(int dx, int dy)
+        {
+            this.x += dx;
+            this.y += dy;
+        }
     }
 
     /**
@@ -607,6 +761,7 @@ public class DrawingWindow extends ProcessingWindow {
         public Ellipse(int x, int y, int w, int h, float a, int c)
         {
             super(x, y, w, h, a, c);
+            type = "Ellipse";
         }
 
         @Override
@@ -622,15 +777,22 @@ public class DrawingWindow extends ProcessingWindow {
         }
 
         @Override
-        public boolean mouseOver()
+        public boolean mouseOver(int x, int y)
         {
-            float f = cos(a) * (pmouseX - this.x) + sin(a) * (pmouseY - this.y);
-            float g = sin(a) * (pmouseX - this.x) - cos(a) * (pmouseY - this.y);
+            float f = cos(a) * (x - this.x) + sin(a) * (y - this.y);
+            float g = sin(a) * (x - this.x) - cos(a) * (y - this.y);
             float rx = (float)w / 2;
             float ry = (float)h / 2;
 
             //return pow((float) (pmouseX - this.x) / ((float)this.w / 2), 2) + pow((float) (pmouseY - this.y) / ((float)this.h / 2), 2) <= 1;
             return pow(f / rx, 2) + pow(g / ry, 2) <= 1.0f;
+        }
+
+        @Override
+        public void move(int dx, int dy)
+        {
+            this.x += dx;
+            this.y += dy;
         }
     }
 
@@ -639,6 +801,7 @@ public class DrawingWindow extends ProcessingWindow {
         public Rectangle(int x, int y, int w, int h, float a, int c)
         {
             super(x, y, w, h, a, c);
+            type = "Rectangle";
         }
 
         @Override
@@ -654,11 +817,67 @@ public class DrawingWindow extends ProcessingWindow {
         }
 
         @Override
-        public boolean mouseOver()
+        public boolean mouseOver(int x, int y)
         {
             float rx = (float)w / 2;
             float ry = (float)h / 2;
-            return (pmouseX > x - rx) && (pmouseX < x + rx) && (pmouseY > y - ry) && (pmouseY < y + ry);
+            return (x > this.x - rx) && (x < this.x + rx) && (y > this.y - ry) && (y < this.y + ry);
+        }
+
+        @Override
+        public void move(int dx, int dy)
+        {
+            this.x += dx;
+            this.y += dy;
+        }
+    }
+
+    private class Image extends Shape
+    {
+        PImage image;
+
+        public Image(String path, int x, int y)
+        {
+            super(x, y, 0, 0, 0, 0);
+            image = loadImage(path);
+            this.w = image.width;
+            this.h = image.height;
+            type = "Image";
+        }
+
+        public Image(String path, String extension, int x, int y)
+        {
+            super(x, y, 0, 0, 0, 0);
+            image = loadImage(path, extension);
+            this.w = image.width;
+            this.h = image.height;
+            this.type = "Image";
+        }
+
+        @Override
+        public void draw()
+        {
+            image(this.image, this.x, this.y);
+        }
+
+        @Override
+        public boolean mouseOver(int x, int y)
+        {
+            return (x > this.x) && (x < this.x + this.w) && (y > this.y) && (y < this.y + this.h);
+        }
+
+        @Override
+        public void move(int dx, int dy)
+        {
+            this.x += dx;
+            this.y += dy;
+        }
+
+        public void resize(int w, int h)
+        {
+            this.image.resize(w, h);
+            this.w = this.image.width;
+            this.h = this.image.height;
         }
     }
 
@@ -684,42 +903,6 @@ public class DrawingWindow extends ProcessingWindow {
             stroke(c);
             line(x0, y0, x1, y1);
             noStroke();
-        }
-    }
-
-    private class Image
-    {
-        PImage image;
-        int x;
-        int y;
-
-        public Image(String path, int x, int y)
-        {
-            image = loadImage(path);
-            this.x = x;
-            this.y = y;
-        }
-
-        public Image(String path, String type, int x, int y)
-        {
-            image = loadImage(path, type);
-            this.x = x;
-            this.y = y;
-        }
-
-        public void draw()
-        {
-            image(this.image, this.x, this.y);
-        }
-
-        public boolean mouseOver()
-        {
-            return (pmouseX > this.x) && (pmouseX < this.x + this.image.width) && (pmouseY > this.y) && (pmouseY < this.y + this.image.height);
-        }
-
-        public void resize(int w, int h)
-        {
-            this.image.resize(w, h);
         }
     }
 
