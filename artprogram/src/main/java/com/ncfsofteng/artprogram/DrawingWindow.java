@@ -77,6 +77,8 @@ public class DrawingWindow extends ProcessingWindow {
      * @param height
      * @param title
      * @param parameters
+     * @param menuWidth
+     * @param menuHeight
      */
     public DrawingWindow(int width, int height, String title, Map<String, Double> parameters, int menuWidth, int menuHeight) {
         super(width, height, title);
@@ -89,6 +91,10 @@ public class DrawingWindow extends ProcessingWindow {
      * dimensions are given
      * @param width
      * @param height
+     * @param parameters
+     * @param menuWidth
+     * @param menuHeight
+     *
      */
     public DrawingWindow(int width, int height, Map<String, Double> parameters, int menuWidth, int menuHeight) {
         this(width, height, DEFAULT_TITLE, parameters, menuWidth, menuHeight);
@@ -132,8 +138,10 @@ public class DrawingWindow extends ProcessingWindow {
      * Initialize the DrawingWindow the same way we would a normal Processing sketch
      */
     public void setup() {
+        //Begin Damien's Stuff
+        //Sets the canvas and allows it to be dynamically resized on the desktop for more drawing space.
         surface.setResizable(true);
-
+        //End Damien's stuff
         // BEGIN DEVON'S STUFF
         frameRate(300);
         background(BG_COLOR);
@@ -148,8 +156,10 @@ public class DrawingWindow extends ProcessingWindow {
      * whatever the user desires.
      */
     public void draw() {
-        //Below is an example to demo the MenuWindow based on the
-        // parameters set in the ExampleDriver.
+        //Begin Damien's Stuff
+        //Below are the parameter float settings for each paint setting.
+        //They work by checking the parameters whenever a button is pressed,
+        // seeing which button was used, then activating that new setting.
         float red = parameters.get("Red").floatValue();
         float green = parameters.get("Green").floatValue();
         float blue = parameters.get("Blue").floatValue();
@@ -175,46 +185,57 @@ public class DrawingWindow extends ProcessingWindow {
         float clipboard = parameters.get("Clipboard").floatValue();
         float clear = parameters.get("Clear").floatValue();
         float magic = parameters.get("Magic Wand").floatValue();
+        //Clears the canvas of all objects.
         if(clear == 1.0){
             this.clear = true;
             parameters.put("Clear", 0.0);
         }
+        //Does Magic :D...In reality, it's just an eraser.
         if(magic == 1.0){
             parameters.put("Magic Wand", 0.0);
             mode = 5;
         }
+        //Sets the current place object as a circle.
         if(circle == 1.0){
             parameters.put("Circle", 0.0);
             this.brush_shape = 2;
         }
+        //Sets the current place object as a Square.
         if(square == 1.0){
             parameters.put("Square", 0.0);
             this.brush_shape = 4;
         }
+        //Sets the current place object as a Rectangle.
         if(rectangle == 1.0){
             parameters.put("Rectangle", 0.0);
             this.brush_shape = 3;
         }
+        //Sets the current place object as a Ellipse.
         if(ellipse == 1.0){
             parameters.put("Ellipse", 0.0);
             this.brush_shape = 1;
         }
+        //Sets the current place object as a Pixel.
         if(pixel == 1.0){
             parameters.put("Pixel", 0.0);
             this.brush_shape = 0;
         }
+        //Sets the current place object as a Line.
         if(line == 1.0){
             parameters.put("Line", 0.0);
             this.brush_shape = 5;
         }
+        //Allows the user to save the current canvas as 3 different images of varying types.
         if(save == 1.0){
             parameters.put("Save", 0.0);
             this.save = true;
         }
+        //Pulls up a file explorer and allows one to load an image into the canvas.
         if(load == 1.0){
             parameters.put("Load", 0.0);
             selectInput("Select an image:", "localImage");
         }
+        //Allows the user to change the brush size via an input for pixels.
         if(brushResize == 1.0){
             parameters.put("Brush Size", 0.0);
             String input = JOptionPane.showInputDialog("Please enter the amount of pixels you want your brush size to be!");
@@ -226,6 +247,7 @@ public class DrawingWindow extends ProcessingWindow {
                 brush_size = 5;
             }
         }
+        //ALlows the user to change their brush type to Spray paint or other styles.
         if(brushType == 1.0){
             parameters.put("Brush Type", 0.0);
             String input = JOptionPane.showInputDialog("Please select a brush type by entering the number corresponding to the desired brush type.!\n 0: Spray Paint\n 1: Thin Brush\n 2: Thick Brush\n 3: Custom Brush\n");
@@ -237,6 +259,7 @@ public class DrawingWindow extends ProcessingWindow {
                 brush_type = 0;
             }
         }
+        //ALlows the user to change their brush mode to other modes like placing shapes or manipulating objects within the canvas.
         if(brushMode == 1.0){
             parameters.put("Brush Mode", 0.0);
             String input = JOptionPane.showInputDialog("Please select a brush mode by entering the number corresponding to the desired brush type.!\n 0: Brush\n 1: Shape\n 2: Manipulate\n 3: Group\n 4: Duplicate");
@@ -247,6 +270,7 @@ public class DrawingWindow extends ProcessingWindow {
                 mode = 0;
             }
         }
+        //Settings for all the red buttons.
         if(red == 1.0){
             this.color = 0;
             parameters.put("Red", 0.0);
@@ -291,11 +315,12 @@ public class DrawingWindow extends ProcessingWindow {
             this.color = 10;
             parameters.put("Brown", 0.0);
         }
+        //copies canvas to clipboard.
         if(clipboard == 1.0){
             parameters.put("Clipboard", 0.0);
             this.clipboard = true;
         }
-
+        //clears the canvas.
         if (this.clear)
         {
             shapes.clear();

@@ -3,7 +3,7 @@ package com.ncfsofteng.artprogram;
 /**
  * ExampleDriver.java
  * @author AdamAnderson
- *
+ * @edited by Damien Razdan
  * An example to show the functionality of DrawingWindow-MenuWindow pairs.
  * We create a map of 3 parameters an ordered pair (x, y) and a radius.
  * These values are used to plot a circle centered at (x, y) on the
@@ -22,7 +22,7 @@ public class ExampleDriver {
     public static void main(String[] args) {
         // Initialize Parameters with names and starting values
 
-        // Prompt user for value to update parameter with
+        // Prompt user for their initial canvas size.
         int canvasWidth;
         int canvasLength;
         String input = JOptionPane.showInputDialog("Please enter the pixel width you'd like your canvas to be!");
@@ -37,6 +37,7 @@ public class ExampleDriver {
             canvasWidth = 500;
             canvasLength = 500;
         }
+        //Sets all buttons up with off values.
         parameters.put("Red", 0.0);
         parameters.put("Green", 0.0);
         parameters.put("Blue", 0.0);
@@ -62,6 +63,7 @@ public class ExampleDriver {
         parameters.put("Save", 0.0);
         parameters.put("Load", 0.0);
         parameters.put("Magic Wand", 0.0);
+        //creates and displays windows!
         DrawingWindow window = new DrawingWindow(canvasWidth, canvasLength, parameters, 500, 500);
         window.createWindow();
     }

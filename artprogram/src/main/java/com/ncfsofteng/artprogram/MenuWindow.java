@@ -56,11 +56,18 @@ public class MenuWindow extends ProcessingWindow {
     /**
      * Draw the menu to the MenuWindow by spacing all parameters equally given
      * the window dimensions.
+     *
+     * Edits by Damien: Due to the way buttons themselves are sized as well as how they are vertically spaced,
+     * I had to manually edit many of the settings and how height and width were calculated for buttons and vertical
+     * spacing in order to make a better fitting menu. I also needed to add a new way of spacing the buttons vertically,
+     * as previously they were all just in a line down the middle of the menu.
      */
     public void draw() {
         Set<String> parameterNames = parameters.keySet();
         int numParameters = parameterNames.size();
+        //determines how far apart the buttons are.
         float verticalSpacing = ((float) height / (float) (numParameters/2.5));
+        //When drawing the buttons, they are spaced out in lines of 3 on the x axis.
         float buttonX[] = new float[3];
         buttonX[0] = (float) (width / 4.5);
         buttonX[1] = (float) (width / 2);
@@ -102,6 +109,7 @@ public class MenuWindow extends ProcessingWindow {
             this.parameter = parameter;
             this.centerX = centerX;
             this.centerY = centerY;
+            //button calculations were edited to better fit the menu screen
             this.bWidth = buttonHeight * 6f;
             this.bHeight = buttonHeight * 1.6f;
         }
@@ -110,6 +118,7 @@ public class MenuWindow extends ProcessingWindow {
          * Draws the button to the output window
          */
         private void draw() {
+            //special placement for the magic wand to make it look nice :).
             if(parameter.equals("Magic Wand")){
                 this.centerX = width / 2;
             }
@@ -117,6 +126,7 @@ public class MenuWindow extends ProcessingWindow {
             fill(50);
             rect(centerX, centerY, bWidth, bHeight);
             System.out.println(centerX + " " + centerY + " " + bWidth + " " + bHeight);
+            //Color codes all the color functions with the exception of black since the buttons themselves are black.
             if (parameter.equals("Red")){
                 fill(255,0,0);
             }
@@ -147,6 +157,7 @@ public class MenuWindow extends ProcessingWindow {
             else{
             fill(255);}
             textAlign(CENTER);
+            //centers text.
             text(parameter, centerX, centerY - (bHeight / 20) + 10);
             fill(0);
         }
@@ -156,6 +167,7 @@ public class MenuWindow extends ProcessingWindow {
          */
         private boolean mouseOver(float mouseX, float mouseY) {
             boolean isPressed = false;
+            //fixed a tiny bug where the button didn't always respond when clicked at it's outer fringes.
             float bWidth = this.bWidth / 2;
             float bHeight = this.bHeight / 2;
             if ((mouseX > centerX - bWidth) && (mouseX < centerX + bWidth) &&
@@ -172,6 +184,7 @@ public class MenuWindow extends ProcessingWindow {
 
 
     public void setup() {
+        //Dynamic resizable window. It stretches the image and doesn't look amazing, but it adds to user functionality.
         surface.setResizable(true);
         background(255);
         fill(0);
