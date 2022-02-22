@@ -49,8 +49,8 @@ public class DrawingWindow extends ProcessingWindow {
 
     // Objects on canvas
     private ArrayList<Shape> shapes = new ArrayList<>();
-    private ArrayList<Image> images = new ArrayList<>();
     private ArrayList<Line> lines = new ArrayList<>();
+    private ArrayList<Shape> group = new ArrayList<>();
 
     private int line_x0 = 0;
     private int line_y0 = 0;
@@ -62,7 +62,7 @@ public class DrawingWindow extends ProcessingWindow {
     private int color = 0; // 0-10: RED/GREEN/BLUE/WHITE/GREY/BLACK/YELLOW/CYAN/MAGENTA/ORANGE/BROWN
     private int brush_shape = 2; // 0-5: PIXEL/ELLIPSE/CIRCLE/RECTANGLE/SQUARE/LINE
     private int brush_type = 3; // 0-3: SprayPaint/Thin/Thick/Custom
-    private int mode = 0; // 0-2: BRUSH/SHAPE/MANIPULATE
+    private int mode = 0; // 0-3: BRUSH/SHAPE/MANIPULATE/GROUP
     private boolean save = false;
     private boolean clipboard = false;
     // END DEVON'S STUFF
@@ -140,12 +140,6 @@ public class DrawingWindow extends ProcessingWindow {
         rectMode(CORNER);
         textAlign(LEFT, TOP);
         noStroke();
-
-        // Demo shapes
-        // shapes.add(new Ellipse(width / 2 + 75, height / 2, 50, 30, -45.0f, setColor(color)));
-        // shapes.add(new Rectangle(width / 2 - 75, height / 2, 50, 30, 15.0f, setColor(color)));
-        // images.add(new Image("https://i.imgur.com/CXMDB5o.png", "png", 100, 100));
-        
         // END DEVON'S STUFF
     }
     /*
@@ -197,7 +191,6 @@ public class DrawingWindow extends ProcessingWindow {
         if(pixel == 1.0){
             parameters.put("Pixel", 0.0);
             this.brush_shape = 0;
-            // TODO: PIXEL SHAPE NOT WORKING
         }
         if(line == 1.0){
             parameters.put("Line", 0.0);
@@ -303,13 +296,7 @@ public class DrawingWindow extends ProcessingWindow {
         // Redraw background so objects can move
         background(BG_COLOR);
 
-        // Draw tracked images
-        for (Image image : images)
-        {
-            image.draw();
-        }
-
-        // Draw tracked shapes
+        // Draw tracked shapes (includes images)
         for (Shape shape : shapes)
         {
             shape.draw();
@@ -364,35 +351,45 @@ public class DrawingWindow extends ProcessingWindow {
      */
     public void mouseClicked()
     {
-        if (mode == 1)
+        if (mode == 1) // SHAPE MODE
         {
             switch (brush_shape)
             {
-                case 0:
+                case 0: // PIXEL
                     shapes.add(new Pixel(mouseX, mouseY, setColor(color)));
                     break;
-                case 1:
+                case 1: // ELLIPSE
                     shapes.add(new Ellipse(mouseX, mouseY, 30, 50, 0.0f, setColor(color)));
                     break;
-                case 2:
+                case 2: // CIRCLE
                     shapes.add(new Ellipse(mouseX, mouseY, 30, 30, 0.0f, setColor(color)));
                     break;
-                case 3:
+                case 3: // RECTANGLE
                     shapes.add(new Rectangle(mouseX, mouseY, 40, 60, 0.0f, setColor(color)));
                     break;
-                case 4:
+                case 4: // SQUARE
                     shapes.add(new Rectangle(mouseX, mouseY, 40, 40, 0.0f, setColor(color)));
                     break;
                 default:
                     break;
             }
         }
-        else if (mode == 2)
+        else if (mode == 2) // MANIPULATE MODE
         {
             for (Shape shape : shapes)
             {
-                if (shape.mouseOver())
+                if (shape.mouseOver(pmouseX, pmouseY))
                     shape.c = setColor(color);
+            }
+        }
+        else if (mode == 3) // GROUP MODE
+        {
+            for (Shape shape : shapes)
+            {
+                if (shape.mouseOver(pmouseX, pmouseY))
+                {
+                    group.add(shape);
+                }
             }
         }
     }
@@ -472,20 +469,9 @@ public class DrawingWindow extends ProcessingWindow {
             // Move shapes if mouse is over them and dragging
             for (Shape shape : shapes)
             {
-                if (shape.mouseOver())
+                if (shape.mouseOver(pmouseX, pmouseY))
                 {
-                    shape.x = mouseX;
-                    shape.y = mouseY;
-                }
-            }
-
-            // Move images if mouse is over them and dragging
-            for (Image image : images)
-            {
-                if (image.mouseOver())
-                {
-                    image.x = mouseX - image.image.width / 2;
-                    image.y = mouseY - image.image.height / 2;
+                    shape.move(mouseX - pmouseX, mouseY - pmouseY);
                 }
             }
         }
@@ -500,7 +486,7 @@ public class DrawingWindow extends ProcessingWindow {
     {
         if (selection != null)
         {
-            images.add(new Image(selection.getAbsolutePath(), width / 2, height / 2));
+            shapes.add(new Image(selection.getAbsolutePath(), width / 2, height / 2));
         }
     }
 
@@ -595,7 +581,12 @@ public class DrawingWindow extends ProcessingWindow {
         /*
          * Returns true if the mouse is over the button on the MenuWindow
          */
-        abstract public boolean mouseOver();
+        abstract public boolean mouseOver(int x, int y);
+        
+        /**
+         * Moves center of shape to given coordinates
+         */
+        abstract public void move(int dx, int dy);
     }
 
     private class Pixel extends Shape
@@ -605,6 +596,7 @@ public class DrawingWindow extends ProcessingWindow {
             super(x, y, 1, 1, 0, c);
         }
 
+        @Override
         public void draw()
         {
             stroke(this.c);
@@ -612,9 +604,17 @@ public class DrawingWindow extends ProcessingWindow {
             noStroke();
         }
 
-        public boolean mouseOver()
+        @Override
+        public boolean mouseOver(int x, int y)
         {
-            return pmouseX == this.x && pmouseY == this.y;
+            return x == this.x && x == this.y;
+        }
+
+        @Override
+        public void move(int dx, int dy)
+        {
+            this.x += dx;
+            this.y += dy;
         }
     }
 
@@ -641,15 +641,22 @@ public class DrawingWindow extends ProcessingWindow {
         }
 
         @Override
-        public boolean mouseOver()
+        public boolean mouseOver(int x, int y)
         {
-            float f = cos(a) * (pmouseX - this.x) + sin(a) * (pmouseY - this.y);
-            float g = sin(a) * (pmouseX - this.x) - cos(a) * (pmouseY - this.y);
+            float f = cos(a) * (x - this.x) + sin(a) * (y - this.y);
+            float g = sin(a) * (x - this.x) - cos(a) * (y - this.y);
             float rx = (float)w / 2;
             float ry = (float)h / 2;
 
             //return pow((float) (pmouseX - this.x) / ((float)this.w / 2), 2) + pow((float) (pmouseY - this.y) / ((float)this.h / 2), 2) <= 1;
             return pow(f / rx, 2) + pow(g / ry, 2) <= 1.0f;
+        }
+
+        @Override
+        public void move(int dx, int dy)
+        {
+            this.x += dx;
+            this.y += dy;
         }
     }
 
@@ -673,11 +680,65 @@ public class DrawingWindow extends ProcessingWindow {
         }
 
         @Override
-        public boolean mouseOver()
+        public boolean mouseOver(int x, int y)
         {
             float rx = (float)w / 2;
             float ry = (float)h / 2;
-            return (pmouseX > x - rx) && (pmouseX < x + rx) && (pmouseY > y - ry) && (pmouseY < y + ry);
+            return (x > this.x - rx) && (x < this.x + rx) && (y > this.y - ry) && (y < this.y + ry);
+        }
+
+        @Override
+        public void move(int dx, int dy)
+        {
+            this.x += dx;
+            this.y += dy;
+        }
+    }
+
+    private class Image extends Shape
+    {
+        PImage image;
+
+        public Image(String path, int x, int y)
+        {
+            super(x, y, 0, 0, 0, 0);
+            image = loadImage(path);
+            this.w = image.width;
+            this.h = image.height;
+        }
+
+        public Image(String path, String type, int x, int y)
+        {
+            super(x, y, 0, 0, 0, 0);
+            image = loadImage(path, type);
+            this.w = image.width;
+            this.h = image.height;
+        }
+
+        @Override
+        public void draw()
+        {
+            image(this.image, this.x, this.y);
+        }
+
+        @Override
+        public boolean mouseOver(int x, int y)
+        {
+            return (x > this.x) && (x < this.x + this.w) && (y > this.y) && (y < this.y + this.h);
+        }
+
+        @Override
+        public void move(int dx, int dy)
+        {
+            this.x += dx;
+            this.y += dy;
+        }
+
+        public void resize(int w, int h)
+        {
+            this.image.resize(w, h);
+            this.w = this.image.width;
+            this.h = this.image.height;
         }
     }
 
@@ -703,42 +764,6 @@ public class DrawingWindow extends ProcessingWindow {
             stroke(c);
             line(x0, y0, x1, y1);
             noStroke();
-        }
-    }
-
-    private class Image
-    {
-        PImage image;
-        int x;
-        int y;
-
-        public Image(String path, int x, int y)
-        {
-            image = loadImage(path);
-            this.x = x;
-            this.y = y;
-        }
-
-        public Image(String path, String type, int x, int y)
-        {
-            image = loadImage(path, type);
-            this.x = x;
-            this.y = y;
-        }
-
-        public void draw()
-        {
-            image(this.image, this.x, this.y);
-        }
-
-        public boolean mouseOver()
-        {
-            return (pmouseX > this.x) && (pmouseX < this.x + this.image.width) && (pmouseY > this.y) && (pmouseY < this.y + this.image.height);
-        }
-
-        public void resize(int w, int h)
-        {
-            this.image.resize(w, h);
         }
     }
 
